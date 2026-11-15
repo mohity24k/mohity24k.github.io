@@ -1,0 +1,63 @@
+---
+/**
+ * The one layout every page uses. It sets the world on <html>, loads tokens
+ * and base styles, and wraps the page in the shared top bar and footer.
+ *
+ *   <Base title="Lab" world="lab"> ... </Base>
+ */
+import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import TopBar from '../components/TopBar.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+import type { World } from '../data/taxonomy';
+
+interface Props {
+  /** Page title. Omit on the home page. */
+  title?: string;
+  description?: string;
+  world?: World;
+  /** Keep the page out of search engines (style guide, drafts). */
+  noindex?: boolean;
+}
+
+const { title, description = site.description, world = 'neutral', noindex = false } = Astro.props;
+
+const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ML for chemistry, games with generative AI`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url);
+---
+
+<!doctype html>
+<html lang={site.locale} data-world={world}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="generator" content={Astro.generator} />
+
+    {/* Fonts: the shared sans is always preloaded; a world's own display
+        face is preloaded only on that world's pages. Everything is
+        self-hosted with metrics-matched fallbacks, so text never jumps. */}
+    <Font cssVariable="--font-schibsted" preload />
+    <Font cssVariable="--font-martian" />
+    <Font cssVariable="--font-mona" preload={world === 'studio'} />
+    <Font cssVariable="--font-brygada" preload={world === 'journal'} />
+
+    <ClientRouter />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <TopBar />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

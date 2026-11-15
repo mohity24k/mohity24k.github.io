@@ -1,1 +1,63 @@
 # mohity24k.github.io
+
+Mohit Gedam's personal site: one home base with three visual worlds.
+
+| World | Path | For |
+|---|---|---|
+| Lab | `/lab/` | AI, chemistry, pharma and research projects; publications |
+| Studio | `/studio/` | Games, AI art gallery, XR |
+| Journal | `/journal/` | Posts and devlogs |
+| Neutral | `/`, `/about/` | Home hub, About, contact, CV |
+
+Built with [Astro](https://astro.build) and deployed to GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`. The design brief is in [`docs/DESIGN.md`](docs/DESIGN.md).
+
+## Run it locally
+
+Needs Node 22.23 or newer.
+
+```bash
+npm install
+```
+
+```bash
+npm run dev
+```
+
+Then open http://localhost:4321. The token reference is at http://localhost:4321/styleguide/.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Local preview with live reload |
+| `npm run build` | Production build into `dist/`. Fails with a clear message if a content entry is invalid |
+| `npm run preview` | Serve the production build locally |
+| `npm run check` | Type-check `.astro` and `.ts` files |
+| `npm run check:contrast` | WCAG contrast check for every world's colour tokens |
+| `npm run todo` | List everything that is still a placeholder |
+
+## Where things live
+
+```
+src/
+  content/            ← the only folder you edit to add work
+    projects/           one .md per project
+    posts/              one .md/.mdx per post or devlog
+    publications/       one .md per publication
+    gallery/            one .yaml per image or clip
+  content.config.ts   schemas that validate every entry
+  data/
+    site.ts             name, links, CV path, contact-form key
+    taxonomy.ts         tags, platforms, statuses
+  styles/
+    tokens.css          skeleton tokens + one block of tokens per world
+    base.css            reset and shared classes; reads tokens only
+  layouts/Base.astro  the one layout: sets data-world, top bar, footer
+  components/         shared pieces
+  pages/              routes
+public/cv/            the downloadable CV (stable file name)
+```
+
+## One-time GitHub setup
+
+In the repository: **Settings → Pages → Source → GitHub Actions**.

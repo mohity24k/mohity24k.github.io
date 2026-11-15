@@ -1,0 +1,17 @@
+# build output
+dist/
+# generated types and caches
+.astro/
+# dependencies
+node_modules/
+# logs
+npm-debug.log*
+# environment variables
+.env
+.env.production
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+# design-review working files
+.impeccable/

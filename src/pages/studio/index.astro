@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import ScaffoldList from '../../components/ScaffoldList.astro';
+import { scaffoldItems } from '../../lib/scaffold';
+
+const items = (await scaffoldItems()).filter((i) => i.world === 'studio');
+---
+
+<Base title="Studio" world="studio">
+  <div class="wrap page">
+    <h1>Studio</h1>
+    <p class="lede">Games and AI art, with XR to come.</p>
+    <ScaffoldList items={items} note="Scaffold view. The dialogue intro, gallery and lightbox arrive in step 3." />
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-block-start: var(--space-3xl);
+  }
+
+  .lede {
+    max-width: var(--measure);
+    margin-block: var(--space-md) var(--space-2xl);
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+  }
+</style>

@@ -1,0 +1,312 @@
+/* ==========================================================================
+   Base styles: reset, element defaults and the shared skeleton classes.
+   Everything here reads tokens only. Nothing in this file names a world.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scrollbar-color: var(--line-strong) var(--bg);
+  /* Used by in-page links (e.g. "Get in touch") */
+  scroll-padding-top: var(--space-xl);
+  background-color: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-image: var(--texture);
+  background-size: var(--texture-size);
+  /* The page column is isolated so the fixed ambient layer can sit behind it. */
+  isolation: isolate;
+}
+
+/* Fixed light behind the page (Studio's off-screen glows). A separate layer,
+   so scrolling never repaints it. Worlds without ambient light render none. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--ambient);
+  pointer-events: none;
+}
+
+/* Any element carrying data-world re-reads colour and type from its own
+   world's tokens. This is the whole theming mechanism. <html> is left out on
+   purpose: its font-size must stay at the browser default so 1rem means the
+   same thing in every world. <body> picks the page's world up by inheritance. */
+body,
+[data-world]:not(html) {
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  accent-color: var(--accent);
+  caret-color: var(--accent);
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ── Typography ─────────────────────────────────────────────────────────── */
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-style: var(--display-style);
+  font-stretch: var(--display-stretch);
+  letter-spacing: var(--display-tracking);
+  line-height: var(--display-leading);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--step-5);
+}
+h2 {
+  font-size: var(--step-3);
+}
+h3 {
+  font-size: var(--step-2);
+}
+h4 {
+  font-size: var(--step-1);
+}
+
+p,
+ul,
+ol,
+dl,
+figure,
+blockquote {
+  margin: 0;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--accent-text);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color var(--dur-fast) var(--ease-world);
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--family-mono);
+  font-stretch: 87.5%;
+  font-size: 0.875em;
+}
+
+hr {
+  border: 0;
+  border-top: var(--border-w) solid var(--line);
+  margin: 0;
+}
+
+/* One focus style in every world: same geometry, world-coloured ring. */
+:focus-visible {
+  outline: var(--focus-w) solid var(--focus);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* ── Skeleton classes ───────────────────────────────────────────────────── */
+
+/* Page column */
+.wrap {
+  width: min(100% - 2 * var(--page-gutter), var(--page-max));
+  margin-inline: auto;
+}
+
+/* Vertical rhythm for prose-like stacks */
+.flow > * + * {
+  margin-block-start: var(--flow-space, var(--space-md));
+}
+
+/* The label voice: mono in Lab, wide caps in Studio, italic serif in Journal. */
+.label {
+  font-family: var(--font-label);
+  font-size: var(--label-size);
+  font-weight: var(--label-weight);
+  font-style: var(--label-style);
+  font-stretch: var(--label-stretch);
+  letter-spacing: var(--label-tracking);
+  text-transform: var(--label-transform);
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+/* Chrome text: top bar, footer, chips and badges use one face everywhere. */
+.ui {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-style: normal;
+  font-stretch: 100%;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+/* Buttons: same shape in every world. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 2.75rem;
+  padding: var(--space-xs) var(--space-md);
+  border: var(--border-w) solid var(--accent);
+  border-radius: var(--radius-md);
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-world),
+    color var(--dur-fast) var(--ease-world),
+    translate var(--dur-fast) var(--ease-world);
+}
+
+.btn:hover {
+  background-color: transparent;
+  color: var(--accent-text);
+}
+
+.btn:active {
+  translate: 0 1px;
+}
+
+.btn--quiet {
+  background-color: transparent;
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.btn--quiet:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.btn svg {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+/* "Coming soon": a link that does not exist yet. Never an <a>. */
+.soon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: var(--space-3xs) var(--space-xs);
+  border: var(--border-w) dashed var(--line-strong);
+  border-radius: var(--radius-pill);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Visually hidden, still read by screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip link: first focusable element on every page */
+.skip-link {
+  position: absolute;
+  inset-block-start: var(--space-xs);
+  inset-inline-start: var(--space-xs);
+  z-index: var(--z-overlay);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--ink);
+  color: var(--bg);
+  font-family: var(--font-ui);
+  font-weight: 650;
+  translate: 0 -200%;
+}
+
+.skip-link:focus-visible {
+  translate: 0 0;
+  outline-color: var(--bg);
+  outline-offset: -4px;
+}
+
+main {
+  flex: 1;
+}
+
+/* ── Reduced motion: the calm version, everywhere ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Paints an element with its world's ground: colour, tiling texture and
+   ambient light. Used wherever a world appears inside another page. */
+.world-surface {
+  background-color: var(--bg);
+  background-image: var(--texture), var(--ambient);
+  background-size: var(--texture-size), 100% 100%;
+}

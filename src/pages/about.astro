@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="About" world="neutral">
+  <div class="wrap page">
+    <h1>About</h1>
+    <p class="lede">
+      Final-year B.Tech student in Pharmaceutical Chemistry & Technology at ICT Mumbai, with a minor in AI/ML.
+    </p>
+    <p class="ui note" id="contact">
+      Scaffold view. The bio, skills, education, photo strip, contact form and CV download arrive in step 4.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-block-start: var(--space-3xl);
+  }
+
+  .lede {
+    max-width: var(--measure);
+    margin-block: var(--space-md) var(--space-2xl);
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+  }
+
+  .note {
+    color: var(--ink-soft);
+  }
+</style>

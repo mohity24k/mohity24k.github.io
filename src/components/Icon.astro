@@ -1,0 +1,34 @@
+---
+/**
+ * The site's icon set: authored 24px line icons, one stroke weight.
+ * Decorative by default (aria-hidden); the surrounding control carries the label.
+ */
+const ICONS = {
+  download: 'M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14',
+  external: 'M8 16 16.5 7.5M9.5 7.5h7v7',
+  arrow: 'M5 12h14m0 0-5-5m5 5-5 5',
+  mail: 'M4 6.5h16v11H4zM4 7l8 6.5L20 7',
+} as const;
+
+interface Props {
+  name: keyof typeof ICONS;
+  size?: number;
+}
+
+const { name, size = 16 } = Astro.props;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.75"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d={ICONS[name]}></path>
+</svg>

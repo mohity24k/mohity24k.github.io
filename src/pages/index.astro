@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import ScaffoldList from '../components/ScaffoldList.astro';
+import { scaffoldItems } from '../lib/scaffold';
+import { site } from '../data/site';
+
+const items = await scaffoldItems();
+---
+
+<Base>
+  <div class="wrap page">
+    <h1>Hi, I’m Mohit.</h1>
+    <p class="lede">{site.tagline}</p>
+    <ScaffoldList
+      items={items}
+      note="Scaffold view: every entry from the content collections, newest first, each painted by its own world's tokens. The real hub (Currently building, Selected work, filters, cards) arrives in step 2."
+    />
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-block-start: var(--space-3xl);
+  }
+
+  .lede {
+    max-width: 30ch;
+    margin-block: var(--space-md) var(--space-2xl);
+    font-size: var(--step-3);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--ink-soft);
+    text-wrap: balance;
+  }
+</style>
