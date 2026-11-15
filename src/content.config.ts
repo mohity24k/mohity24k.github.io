@@ -106,6 +106,9 @@ const projects = defineCollection({
           error: '"art" must be one of: molecule, network, waveform (Lab) or scene (Studio).',
         })
         .optional(),
+      /** Gallery pieces to show on the project page: file names (without
+          .yaml) from src/content/gallery/, e.g. gallery: [heroine-sheet]. */
+      gallery: z.array(reference('gallery')).default([]),
       /** Featured projects appear in "Selected work" on the home page. */
       featured: z.boolean().default(false),
       /** Lower numbers come first in "Selected work". */

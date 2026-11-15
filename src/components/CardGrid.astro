@@ -8,7 +8,7 @@ import type { FeedItem } from '../lib/feed';
 
 interface Props {
   items: FeedItem[];
-  size?: 'feature' | 'standard';
+  size?: 'feature' | 'standard' | 'wide';
   heading?: 'h2' | 'h3';
 }
 
@@ -40,6 +40,10 @@ const { items, size = 'standard', heading = 'h3' } = Astro.props;
     .grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+  }
+
+  .grid[data-size='wide'] {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .grid > li[hidden] {

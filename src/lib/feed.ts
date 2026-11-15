@@ -214,3 +214,23 @@ export async function getCurrentlyBuilding(): Promise<Building[]> {
       };
     });
 }
+
+/** One feed item by its key, e.g. "projects/visual-novel". */
+export async function getItem(key: string): Promise<FeedItem | undefined> {
+  return (await getFeed()).find((item) => item.key === key);
+}
+
+/** Posts written about a project, newest first. */
+export async function getPostsAbout(projectId: string): Promise<FeedItem[]> {
+  const posts = await getPosts();
+  return posts
+    .filter((post) => post.data.relatedProject?.id === projectId)
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+    .map(fromPost);
+}
+
+/** Minutes to read a piece of markdown, at about 220 words a minute. */
+export function readingMinutes(markdown: string | undefined): number {
+  const words = (markdown ?? '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 220));
+}

@@ -39,6 +39,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url);
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} · Journal`} href="/rss.xml" />
     <meta name="generator" content={Astro.generator} />
 
     {/* Fonts: the shared sans is always preloaded; a world's own display

@@ -12,7 +12,7 @@ relatedProject: visual-novel
 placeholder: [body]
 ---
 
-I'm making a visual novel, and the art and video in it are generated with ComfyUI and open-source image and video models.
+This is the first entry in the devlog for a visual novel I'm making. The art and video in it are generated with ComfyUI and open-source image and video models.
 
 This journal is where I'll write that work up, about once a month: what I tried, what worked, and what I'd do differently.
 

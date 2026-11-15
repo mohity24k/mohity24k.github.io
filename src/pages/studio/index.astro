@@ -1,28 +1,80 @@
 ---
+/**
+ * Studio: games and AI art. Opens with the visual-novel dialogue, then what
+ * is being made, then the gallery.
+ */
+import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import CardGrid from '../../components/CardGrid.astro';
+import Gallery from '../../components/Gallery.astro';
+import Icon from '../../components/Icon.astro';
+import Lightbox from '../../components/Lightbox.astro';
+import StudioIntro from '../../components/StudioIntro.astro';
 import { getFeed } from '../../lib/feed';
 
-const items = (await getFeed()).filter((item) => item.world === 'studio');
+const PREVIEW = 6;
+
+const projects = (await getFeed()).filter((item) => item.world === 'studio');
+const pieces = (await getCollection('gallery')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const allStandIns = pieces.length > 0 && pieces.every((piece) => piece.data.placeholder.length > 0);
 ---
 
-<Base title="Studio" world="studio" description="Games and AI art, with XR to come.">
-  <div class="wrap page">
-    <h1>Studio</h1>
-    <p class="lede">Games and AI art, with XR to come.</p>
-    <CardGrid items={items} heading="h2" />
-  </div>
+<Base title="Studio" world="studio" description="Games and AI art: a visual novel in progress, and a gallery of generated pieces with the model and workflow behind each.">
+  <StudioIntro />
+
+  {
+    projects.length > 0 && (
+      <section class="wrap section">
+        <h2>In the works</h2>
+        <CardGrid items={projects} size={projects.length < 3 ? 'wide' : 'standard'} />
+      </section>
+    )
+  }
+
+  {
+    pieces.length > 0 && (
+      <section class="wrap section" id="gallery">
+        <div class="section__head">
+          <h2>Gallery</h2>
+          <p>
+            {allStandIns
+              ? 'These three are stand-ins drawn by this site’s code. Generated pieces from the visual novel will replace them, each labelled AI-generated with its model and workflow.'
+              : 'AI-generated images and short clips. Each one lists the model, the workflow and what it was made for.'}
+          </p>
+        </div>
+        <Gallery pieces={pieces.slice(0, PREVIEW)} />
+        {pieces.length > PREVIEW && (
+          <p class="section__more">
+            <a class="btn btn--quiet" href="/studio/gallery/">
+              <span>All {pieces.length} pieces</span>
+              <Icon name="arrow" />
+            </a>
+          </p>
+        )}
+        <Lightbox />
+      </section>
+    )
+  }
 </Base>
 
 <style>
-  .page {
-    padding-block-start: var(--space-3xl);
+  .section {
+    margin-block-start: var(--space-3xl);
+    scroll-margin-top: var(--space-lg);
   }
 
-  .lede {
+  .section > h2,
+  .section__head {
+    margin-block-end: var(--space-lg);
+  }
+
+  .section__head p {
     max-width: var(--measure);
-    margin-block: var(--space-md) var(--space-2xl);
+    margin-block-start: var(--space-sm);
     color: var(--ink-soft);
-    font-size: var(--step-1);
+  }
+
+  .section__more {
+    margin-block-start: var(--space-md);
   }
 </style>

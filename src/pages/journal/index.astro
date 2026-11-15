@@ -1,28 +1,263 @@
 ---
+/**
+ * Journal: every post, newest first. The latest leads; the rest are listed
+ * by year underneath.
+ */
+import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
-import CardGrid from '../../components/CardGrid.astro';
-import { getFeed } from '../../lib/feed';
+import CoverArt from '../../components/CoverArt.astro';
+import FilterChips from '../../components/FilterChips.astro';
+import Icon from '../../components/Icon.astro';
+import { TAGS } from '../../data/taxonomy';
+import { countTags, getFeed, getPosts, isoDate, readingMinutes } from '../../lib/feed';
 
-const items = (await getFeed()).filter((item) => item.world === 'journal');
+const lede = 'Posts and devlogs, about once a month: what I tried, what worked, and what I would do differently.';
+
+const posts = (await getFeed()).filter((item) => item.collection === 'posts');
+const bodies = new Map((await getPosts()).map((post) => [post.id, post.body]));
+const minutes = (id: string) => `${readingMinutes(bodies.get(id))} min read`;
+
+const [lead, ...rest] = posts;
+const years = [...new Set(rest.map((post) => post.date.getUTCFullYear()))];
+const dayMonth = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 ---
 
-<Base title="Journal" world="journal" description="Posts and devlogs, about once a month.">
-  <div class="wrap page">
+<Base title="Journal" world="journal" description={lede}>
+  <header class="wrap head">
     <h1>Journal</h1>
-    <p class="lede">Posts and devlogs, about once a month.</p>
-    <CardGrid items={items} heading="h2" />
+    <p class="head__lede">{lede}</p>
+    <a class="head__rss ui" href="/rss.xml">
+      <Icon name="rss" />
+      <span>RSS feed</span>
+    </a>
+  </header>
+
+  <div class="wrap" data-feed="inline">
+    <FilterChips tags={countTags(posts)} total={posts.length} allHref="/journal/" label="Filter posts by interest" />
+
+    {
+      lead && (
+        <div data-group>
+          <article class="lead" data-tags={lead.tags.join(' ')}>
+            <div class="lead__text">
+              <h2>
+                <a href={lead.href}>{lead.title}</a>
+              </h2>
+              <p class="lead__summary">{lead.summary}</p>
+              <p class="label">
+                {lead.dateText && <time datetime={isoDate(lead.date)}>{lead.dateText}</time>}
+                {lead.dateText && ' · '}
+                {minutes(lead.id)}
+              </p>
+              <ul class="tags label">
+                {lead.tags.map((tag) => (
+                  <li>
+                    <a href={`/tags/${tag}/`}>{TAGS[tag]}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <a class="lead__cover" href={lead.href} tabindex="-1" aria-hidden="true">
+              {lead.cover ? (
+                <Image src={lead.cover} alt="" widths={[480, 720, 960]} sizes="(min-width: 52rem) 30rem, 100vw" />
+              ) : (
+                <CoverArt motif={lead.art} seed={lead.key} text={lead.artText} />
+              )}
+            </a>
+          </article>
+        </div>
+      )
+    }
+
+    {
+      years.map((year) => (
+        <section class="year" data-group>
+          <h2 class="year__title">{year}</h2>
+          <ul class="rows">
+            {rest
+              .filter((post) => post.date.getUTCFullYear() === year)
+              .map((post) => (
+                <li class="row" data-tags={post.tags.join(' ')}>
+                  <p class="row__date label">
+                    {post.dateText && <time datetime={isoDate(post.date)}>{dayMonth.format(post.date)}</time>}
+                  </p>
+                  <div>
+                    <h3>
+                      <a href={post.href}>{post.title}</a>
+                    </h3>
+                    <p class="row__summary">{post.summary}</p>
+                  </div>
+                  <p class="row__meta label">{minutes(post.id)}</p>
+                </li>
+              ))}
+          </ul>
+        </section>
+      ))
+    }
   </div>
 </Base>
 
 <style>
-  .page {
-    padding-block-start: var(--space-3xl);
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--space-md) var(--space-xl);
+    margin-block-end: var(--space-xl);
+    padding-block: var(--space-3xl) var(--space-lg);
+    /* A masthead rule: thick over thin. */
+    border-block-end: 3px double var(--ink);
   }
 
-  .lede {
-    max-width: var(--measure);
-    margin-block: var(--space-md) var(--space-2xl);
+  .head h1 {
+    grid-column: 1 / -1;
+    font-size: clamp(3.2rem, 1.8rem + 7vw, 6rem);
+  }
+
+  .head__lede {
+    max-width: 46ch;
     color: var(--ink-soft);
-    font-size: var(--step-1);
+  }
+
+  .head__rss {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .lead {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+    align-items: center;
+    gap: var(--space-xl) var(--space-3xl);
+    padding-block: var(--space-2xl);
+    border-block-end: var(--border-w) solid var(--line-strong);
+  }
+
+  .lead[hidden] {
+    display: none;
+  }
+
+  .lead h2 {
+    font-size: var(--step-4);
+  }
+
+  .lead h2 a,
+  .row h3 a {
+    color: inherit;
+    text-decoration-color: transparent;
+  }
+
+  .lead h2 a:hover,
+  .row h3 a:hover {
+    color: var(--accent-text);
+    text-decoration-color: currentColor;
+  }
+
+  .lead__summary {
+    max-width: 44ch;
+    margin-block: var(--space-md);
+    color: var(--ink-soft);
+  }
+
+  .lead__cover {
+    display: block;
+    overflow: hidden;
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+  }
+
+  .lead__cover :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin: var(--space-xs) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tags li + li::before {
+    content: '·';
+    margin-inline: 0.5em;
+  }
+
+  .tags a {
+    color: inherit;
+    text-decoration-color: transparent;
+  }
+
+  .tags a:hover {
+    color: var(--accent-text);
+    text-decoration-color: currentColor;
+  }
+
+  .year {
+    margin-block-start: var(--space-2xl);
+  }
+
+  .year[hidden] {
+    display: none;
+  }
+
+  .year__title {
+    font-size: var(--step-2);
+    font-style: normal;
+  }
+
+  .rows {
+    margin: var(--space-md) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-xs) var(--space-lg);
+    padding-block: var(--space-md);
+    border-block-start: var(--border-w) solid var(--line);
+  }
+
+  .row[hidden] {
+    display: none;
+  }
+
+  .row h3 {
+    font-size: var(--step-2);
+  }
+
+  .row__summary {
+    max-width: 56ch;
+    margin-block-start: var(--space-2xs);
+    color: var(--ink-soft);
+    font-size: 0.95em;
+  }
+
+  @media (max-width: 52rem) {
+    .head {
+      grid-template-columns: minmax(0, 1fr);
+      padding-block-start: var(--space-xl);
+    }
+
+    .lead {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .lead__cover {
+      order: -1;
+    }
+
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

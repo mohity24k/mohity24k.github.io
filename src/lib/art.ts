@@ -55,9 +55,9 @@ class Molecule {
   }
 }
 
-const MOLECULES: Array<() => Molecule> = [
-  // Paracetamol: HO–C6H4–NH–C(=O)–CH3
-  () => {
+const MOLECULES: Array<{ name: string; formula: string; build: () => Molecule }> = [
+  // HO–C6H4–NH–C(=O)–CH3
+  { name: 'Paracetamol', formula: 'C8H9NO2', build: () => {
     const m = new Molecule();
     const r = m.ring();
     m.grow(r[3]!, 180, { label: 'HO', anchor: 'end' });
@@ -66,9 +66,9 @@ const MOLECULES: Array<() => Molecule> = [
     m.grow(c, 240, { label: 'O', double: true });
     m.grow(c, 0);
     return m;
-  },
-  // Aspirin: 2-acetoxybenzoic acid
-  () => {
+  } },
+  // 2-acetoxybenzoic acid
+  { name: 'Aspirin', formula: 'C9H8O4', build: () => {
     const m = new Molecule();
     const r = m.ring();
     const acid = m.grow(r[4]!, 240);
@@ -79,9 +79,9 @@ const MOLECULES: Array<() => Molecule> = [
     m.grow(c, 300, { label: 'O', double: true });
     m.grow(c, 60);
     return m;
-  },
-  // Ibuprofen: 2-(4-isobutylphenyl)propanoic acid
-  () => {
+  } },
+  // 2-(4-isobutylphenyl)propanoic acid
+  { name: 'Ibuprofen', formula: 'C13H18O2', build: () => {
     const m = new Molecule();
     const r = m.ring();
     const ch2 = m.grow(r[3]!, 180);
@@ -94,7 +94,7 @@ const MOLECULES: Array<() => Molecule> = [
     m.grow(acid, 120, { label: 'O', double: true });
     m.grow(acid, 0, { label: 'OH', anchor: 'start' });
     return m;
-  },
+  } },
 ];
 
 export interface Line {
@@ -113,8 +113,12 @@ export interface Label {
 }
 
 /** A molecule fitted into the given box, as bond lines and atom labels. */
-export function molecule(rng: Rng, box = { x: 70, y: 28, w: 300, h: 194 }): { lines: Line[]; labels: Label[] } {
-  const m = rng.pick(MOLECULES)();
+export function molecule(
+  rng: Rng,
+  box = { x: 70, y: 28, w: 300, h: 194 },
+): { lines: Line[]; labels: Label[]; name: string; formula: string } {
+  const { name, formula, build } = rng.pick(MOLECULES);
+  const m = build();
 
   // Fit: uniform scale, centred, with room for labels at the edges.
   const xs = m.atoms.map((a) => a.x);
@@ -168,7 +172,7 @@ export function molecule(rng: Rng, box = { x: 70, y: 28, w: 300, h: 194 }): { li
     if (atom.hBelow) labels.push({ x: round(p.x), y: round(p.y + 15), text: 'H', anchor: 'middle', small: true });
   }
 
-  return { lines, labels };
+  return { lines, labels, name, formula };
 }
 
 /* ── Lab: network schematic ─────────────────────────────────────────────── */

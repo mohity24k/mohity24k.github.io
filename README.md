@@ -4,9 +4,9 @@ Mohit Gedam's personal site: one home base with three visual worlds.
 
 | World | Path | For |
 |---|---|---|
-| Lab | `/lab/` | AI, chemistry, pharma and research projects; publications |
-| Studio | `/studio/` | Games, AI art gallery, XR |
-| Journal | `/journal/` | Posts and devlogs |
+| Lab | `/lab/`, `/lab/<project>/`, `/lab/publications/<paper>/` | AI, chemistry, pharma and research projects; publications; certifications |
+| Studio | `/studio/`, `/studio/<project>/`, `/studio/gallery/` | Games, AI art gallery, XR |
+| Journal | `/journal/`, `/journal/<post>/`, `/rss.xml` | Posts and devlogs, with an RSS feed |
 | Neutral | `/`, `/about/` | Home hub, About, contact, CV |
 | Neutral | `/tags/<tag>/` | Everything with one tag, across worlds. Good links for a CV, e.g. `/tags/pharma/` |
 
@@ -49,6 +49,8 @@ src/
   content.config.ts   schemas that validate every entry
   data/
     site.ts             name, links, CV path, contact-form key
+    studio.ts           the dialogue lines that open /studio/
+    about.ts            certifications (and, from step 4, the About page facts)
     taxonomy.ts         tags, platforms, statuses
   styles/
     tokens.css          skeleton tokens + one block of tokens per world

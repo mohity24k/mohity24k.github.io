@@ -1,0 +1,160 @@
+---
+/**
+ * Tag filter chips.
+ *
+ * Every chip is a real link to a static page, /tags/<tag>/, so filters work
+ * with JavaScript off and make clean links for a CV.
+ *
+ * Put the chips inside an element with `data-feed="inline"` and a small
+ * script filters that element in place instead: anything with a `data-tags`
+ * attribute is shown or hidden, any `data-group` left empty is hidden, and
+ * the choice is recorded in the address bar as ?tag=<tag>.
+ *
+ * Only pass tags that have at least one item; empty filters are never drawn.
+ */
+import type { Tag } from '../data/taxonomy';
+import type { TagCount } from '../lib/feed';
+
+interface Props {
+  tags: TagCount[];
+  /** Number of items behind "All". */
+  total: number;
+  /** Where "All" leads when JavaScript is off. */
+  allHref: string;
+  /** The tag this page is filtered to, if any. */
+  active?: Tag;
+  label?: string;
+}
+
+const { tags, total, allHref, active, label = 'Filter by interest' } = Astro.props;
+---
+
+<nav class="chips ui" aria-label={label}>
+  <ul>
+    <li>
+      <a class="chip" href={allHref} data-tag="" aria-current={active ? undefined : 'true'}>
+        <span>All</span>
+        <span class="chip__n">{total}</span>
+      </a>
+    </li>
+    {
+      tags.map(({ tag, label: name, count }) => (
+        <li>
+          <a class="chip" href={`/tags/${tag}/`} data-tag={tag} aria-current={active === tag ? 'true' : undefined}>
+            <span>{name}</span>
+            <span class="chip__n">{count}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+<p class="sr-only" role="status" data-feed-status></p>
+
+<script>
+  import { TAGS } from '../data/taxonomy';
+
+  const labels: Record<string, string> = TAGS;
+
+  function setUp(feed: HTMLElement) {
+    const chips = [...feed.querySelectorAll<HTMLAnchorElement>('.chip[data-tag]')];
+    const cells = [...feed.querySelectorAll<HTMLElement>('[data-tags]')];
+    const groups = [...feed.querySelectorAll<HTMLElement>('[data-group]')];
+    const status = feed.querySelector<HTMLElement>('[data-feed-status]');
+    const known = new Set(chips.map((chip) => chip.dataset.tag ?? ''));
+
+    const apply = (tag: string, announce: boolean) => {
+      let shown = 0;
+      for (const cell of cells) {
+        const match = tag === '' || (cell.dataset.tags ?? '').split(' ').includes(tag);
+        cell.hidden = !match;
+        if (match) shown++;
+      }
+      for (const group of groups) group.hidden = !group.querySelector('[data-tags]:not([hidden])');
+      for (const chip of chips) {
+        if (chip.dataset.tag === tag) chip.setAttribute('aria-current', 'true');
+        else chip.removeAttribute('aria-current');
+      }
+      if (announce && status) {
+        status.textContent = tag ? `Showing ${shown} of ${cells.length}: ${labels[tag] ?? tag}.` : `Showing all ${cells.length}.`;
+      }
+    };
+
+    for (const chip of chips) {
+      chip.addEventListener('click', (event) => {
+        // Leave modified clicks alone so "open in new tab" still goes to the static page.
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+
+        const tag = chip.dataset.tag ?? '';
+        const url = new URL(location.href);
+        if (tag) url.searchParams.set('tag', tag);
+        else url.searchParams.delete('tag');
+        url.hash = '';
+        history.replaceState(history.state, '', url);
+
+        const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!calm && document.startViewTransition) document.startViewTransition(() => apply(tag, true));
+        else apply(tag, true);
+      });
+    }
+
+    // A link like ?tag=pharma opens already filtered.
+    const initial = new URLSearchParams(location.search).get('tag') ?? '';
+    apply(known.has(initial) ? initial : '', false);
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('[data-feed="inline"]').forEach(setUp);
+  });
+</script>
+
+<style>
+  .chips ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: 2.75rem;
+    padding-inline: var(--space-md);
+    border: var(--border-w) solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background-color: var(--bg-raised);
+    color: var(--ink);
+    font-weight: 550;
+    text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-world),
+      color var(--dur-fast) var(--ease-world),
+      border-color var(--dur-fast) var(--ease-world);
+  }
+
+  .chip:hover {
+    border-color: var(--ink);
+  }
+
+  .chip[aria-current] {
+    border-color: var(--ink);
+    background-color: var(--ink);
+    color: var(--bg);
+  }
+
+  .chip__n {
+    color: var(--ink-soft);
+    font-size: var(--step--2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chip[aria-current] .chip__n {
+    color: inherit;
+    opacity: 0.75;
+  }
+</style>

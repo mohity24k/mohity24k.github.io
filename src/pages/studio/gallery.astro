@@ -1,0 +1,60 @@
+---
+/**
+ * Every gallery piece, newest first.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Gallery from '../../components/Gallery.astro';
+import Icon from '../../components/Icon.astro';
+import Lightbox from '../../components/Lightbox.astro';
+
+const pieces = (await getCollection('gallery')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const allStandIns = pieces.length > 0 && pieces.every((piece) => piece.data.placeholder.length > 0);
+const lede = allStandIns
+  ? 'These are stand-ins drawn by this site’s code. Generated pieces from the visual novel will replace them, each labelled AI-generated with its model and workflow.'
+  : 'AI-generated images and short clips. Each one lists the model, the workflow and what it was made for.';
+---
+
+<Base title="Gallery" world="studio" description={lede}>
+  <div class="wrap page">
+    <a class="back ui" href="/studio/">
+      <Icon name="back" />
+      <span>Studio</span>
+    </a>
+    <h1>Gallery</h1>
+    <p class="lede">{lede}</p>
+    <Gallery pieces={pieces} />
+    <Lightbox />
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-block-start: var(--space-xl);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    color: var(--ink-soft);
+    font-weight: 550;
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--ink);
+  }
+
+  .page h1 {
+    margin-block-start: var(--space-md);
+  }
+
+  .lede {
+    max-width: var(--measure);
+    margin-block: var(--space-md) var(--space-2xl);
+    color: var(--ink-soft);
+    font-size: var(--step-1);
+  }
+</style>

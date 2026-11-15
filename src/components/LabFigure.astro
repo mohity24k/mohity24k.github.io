@@ -1,0 +1,68 @@
+---
+/**
+ * A skeletal formula drawn straight onto the notebook page, with a figure
+ * caption naming the molecule. Decorative.
+ */
+import { ART_H, ART_W, molecule } from '../lib/art';
+import { seeded } from '../lib/seed';
+
+interface Props {
+  seed: string;
+}
+
+const fig = molecule(seeded(Astro.props.seed), { x: 10, y: 10, w: ART_W - 20, h: ART_H - 20 });
+// C8H9NO2 → C, 8, H, 9, N, O, 2 so the digits can be set as subscripts.
+const formula = fig.formula.match(/[A-Za-z]+|\d+/g) ?? [];
+---
+
+<figure class="figure" aria-hidden="true">
+  <svg viewBox={`0 0 ${ART_W} ${ART_H}`} focusable="false" data-draw>
+    {fig.lines.map((l) => <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />)}
+    {
+      fig.labels.map((l) => (
+        <text x={l.x} y={l.y} text-anchor={l.anchor} class:list={[{ h: l.small }]}>
+          {l.text}
+        </text>
+      ))
+    }
+  </svg>
+  <figcaption class="label">
+    Fig. 1 · {fig.name}, {formula.map((part) => (/\d/.test(part) ? <sub>{part}</sub> : part))}
+  </figcaption>
+</figure>
+
+<style>
+  .figure svg {
+    width: 100%;
+    overflow: visible;
+  }
+
+  line {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  text {
+    fill: var(--accent);
+    font-family: var(--family-sans);
+    font-size: 15px;
+    font-weight: 650;
+    dominant-baseline: central;
+  }
+
+  text.h {
+    font-size: 12px;
+  }
+
+  figcaption {
+    margin-block-start: var(--space-xs);
+    text-align: end;
+  }
+
+  sub {
+    font-size: 0.8em;
+    line-height: 0;
+  }
+</style>

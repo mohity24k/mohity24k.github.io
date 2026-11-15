@@ -1,0 +1,218 @@
+---
+/**
+ * The gallery viewer. Put one on any page that shows gallery pieces.
+ *
+ * Any link with `data-lightbox` opens it; the slide shown is the
+ * <template data-slide> that sits in the same list item as the link.
+ * Without JavaScript the links simply open the full image.
+ *
+ * Keyboard: Esc closes, ← → move between pieces, Home / End jump to the
+ * first and last. Touch: swipe left or right. Focus stays inside the viewer
+ * while it is open and returns to the piece you opened when it closes.
+ */
+import Icon from './Icon.astro';
+---
+
+<dialog class="lightbox" data-world="studio" aria-label="Gallery viewer">
+  <div class="lightbox__shell" data-shell>
+    <div class="lightbox__stage" data-stage></div>
+
+    <div class="lightbox__bar ui">
+      <button type="button" class="lightbox__btn" data-prev aria-label="Previous piece">
+        <Icon name="prev" size={22} />
+      </button>
+      <p class="lightbox__count" data-count aria-live="polite"></p>
+      <button type="button" class="lightbox__btn" data-next aria-label="Next piece">
+        <Icon name="next" size={22} />
+      </button>
+    </div>
+
+    <button type="button" class="lightbox__btn lightbox__close" data-close aria-label="Close viewer">
+      <Icon name="close" size={22} />
+    </button>
+  </div>
+</dialog>
+
+<script>
+  function setUp() {
+    const dialog = document.querySelector<HTMLDialogElement>('dialog.lightbox');
+    if (!dialog || dialog.dataset.ready) return;
+    dialog.dataset.ready = 'true';
+
+    const stage = dialog.querySelector<HTMLElement>('[data-stage]')!;
+    const count = dialog.querySelector<HTMLElement>('[data-count]')!;
+    const prev = dialog.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = dialog.querySelector<HTMLButtonElement>('[data-next]')!;
+    const triggers = [...document.querySelectorAll<HTMLAnchorElement>('a[data-lightbox]')];
+    let index = 0;
+
+    const show = (i: number) => {
+      index = (i + triggers.length) % triggers.length;
+      const slide = triggers[index]!.closest('li')?.querySelector<HTMLTemplateElement>('template[data-slide]');
+      if (!slide) return;
+      stage.replaceChildren(slide.content.cloneNode(true));
+      count.textContent = `${index + 1} of ${triggers.length}`;
+      prev.hidden = next.hidden = triggers.length < 2;
+    };
+
+    triggers.forEach((trigger, i) => {
+      trigger.addEventListener('click', (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        show(i);
+        dialog.showModal();
+      });
+    });
+
+    prev.addEventListener('click', () => show(index - 1));
+    next.addEventListener('click', () => show(index + 1));
+    dialog.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') show(index - 1);
+      else if (event.key === 'ArrowRight') show(index + 1);
+      else if (event.key === 'Home') show(0);
+      else if (event.key === 'End') show(triggers.length - 1);
+      else return;
+      event.preventDefault();
+    });
+
+    // A click on the dark surround (not on the picture or its caption) closes the viewer.
+    dialog.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      if (target === dialog || target.matches('[data-shell], [data-stage]')) dialog.close();
+    });
+
+    // Emptying the stage stops any video that was playing.
+    dialog.addEventListener('close', () => stage.replaceChildren());
+
+    // Swipe left / right on touch screens.
+    let start: { x: number; y: number } | null = null;
+    stage.addEventListener('pointerdown', (event) => {
+      start = event.pointerType === 'mouse' ? null : { x: event.clientX, y: event.clientY };
+    });
+    stage.addEventListener('pointerup', (event) => {
+      if (!start) return;
+      const dx = event.clientX - start.x;
+      const dy = event.clientY - start.y;
+      start = null;
+      if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) show(index + (dx < 0 ? 1 : -1));
+    });
+  }
+
+  document.addEventListener('astro:page-load', setUp);
+</script>
+
+<style>
+  .lightbox {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+    color: var(--ink);
+  }
+
+  .lightbox::backdrop {
+    background-color: oklch(8% 0.02 292 / 0.94);
+  }
+
+  /* Stop the page behind from scrolling while the viewer is open. */
+  :global(html:has(dialog.lightbox[open])) {
+    overflow: hidden;
+  }
+
+  .lightbox__shell {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: 100%;
+    padding: var(--space-md) var(--page-gutter);
+  }
+
+  .lightbox__stage {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    touch-action: pan-y;
+  }
+
+  /* The slide content is cloned from a <template>, so it is styled globally. */
+  .lightbox__stage :global(figure) {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    justify-items: center;
+    gap: var(--space-md);
+    max-width: min(100%, 72rem);
+    max-height: 100%;
+    min-height: 0;
+  }
+
+  .lightbox__stage :global(img),
+  .lightbox__stage :global(video) {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    min-height: 0;
+    border-radius: var(--radius-md);
+    object-fit: contain;
+  }
+
+  .lightbox__stage :global(figcaption) {
+    max-width: 60ch;
+    text-align: center;
+  }
+
+  .lightbox__stage :global(.piece__facts),
+  .lightbox__stage :global(.piece__foot) {
+    justify-content: center;
+  }
+
+  .lightbox__bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    padding-block-start: var(--space-sm);
+  }
+
+  .lightbox__count {
+    min-width: 5rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  .lightbox__btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: var(--border-w) solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background-color: var(--bg-raised);
+    color: var(--ink);
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) var(--ease-out-quart),
+      background-color var(--dur-fast) var(--ease-out-quart);
+  }
+
+  .lightbox__btn:hover {
+    border-color: var(--accent-2);
+    background-color: var(--accent-soft);
+  }
+
+  .lightbox__btn[hidden] {
+    display: none;
+  }
+
+  .lightbox__close {
+    position: absolute;
+    inset-block-start: var(--space-md);
+    inset-inline-end: var(--page-gutter);
+  }
+</style>

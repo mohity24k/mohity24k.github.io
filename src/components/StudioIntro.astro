@@ -1,0 +1,314 @@
+---
+/**
+ * The Studio's opening: a night scene with a visual-novel dialogue box.
+ *
+ * Without JavaScript (or with "reduce motion" on) every line is simply
+ * there to read. With it, lines are typed out one at a time: click the
+ * box, or press the button, Enter or Space, to continue; "Skip" shows
+ * everything at once.
+ *
+ * The lines come from src/data/studio.ts.
+ */
+import CoverArt from './CoverArt.astro';
+import Icon from './Icon.astro';
+import { studioIntro } from '../data/studio';
+---
+
+<section class="stage wrap" aria-label="Welcome to the Studio">
+  <div class="stage__frame">
+    <div class="stage__scene" data-parallax>
+      <CoverArt motif="scene" seed="studio/intro/10" />
+    </div>
+
+    <h1 class="stage__title">Studio</h1>
+
+    <div class="dialogue" data-dialogue>
+      <p class="dialogue__name label">{studioIntro.speaker}</p>
+      <ol class="dialogue__lines">
+        {studioIntro.lines.map((line) => <li>{line}</li>)}
+      </ol>
+      <div class="dialogue__controls ui">
+        <button type="button" class="dialogue__next" data-next>
+          <span>Continue</span>
+          <Icon name="next" />
+        </button>
+        <button type="button" class="dialogue__skip" data-skip>Skip</button>
+        <a class="dialogue__end" href="#gallery" data-end>
+          <span>See the gallery</span>
+          <Icon name="arrow" />
+        </a>
+      </div>
+    </div>
+
+    {/* Runs before first paint, so the box is already in its one-line shape
+        when the page appears and nothing below it moves. If the main script
+        has not taken over within a few seconds, every line is shown. */}
+    <script is:inline data-astro-rerun>
+      (() => {
+        const box = document.querySelector('[data-dialogue]:not([data-enhanced])');
+        if (!box || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        box.setAttribute('data-enhanced', '');
+        setTimeout(() => {
+          if (!box.hasAttribute('data-ready')) box.removeAttribute('data-enhanced');
+        }, 4000);
+      })();
+    </script>
+  </div>
+</section>
+
+<script>
+  const CHARS_PER_SECOND = 48;
+
+  function setUp(box: HTMLElement) {
+    if (box.hasAttribute('data-ready')) return;
+
+    // The calm version: everything stays visible, nothing is typed.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const lines = [...box.querySelectorAll<HTMLLIElement>('.dialogue__lines li')];
+    const next = box.querySelector<HTMLButtonElement>('[data-next]')!;
+    const skip = box.querySelector<HTMLButtonElement>('[data-skip]')!;
+    if (lines.length === 0) return;
+
+    // Each line becomes "typed" + "still to come". The second half is invisible
+    // but still takes up space, so the box never changes size while typing.
+    const parts = lines.map((line) => {
+      const text = line.textContent ?? '';
+      const typed = document.createElement('span');
+      const rest = document.createElement('span');
+      rest.className = 'dialogue__rest';
+      rest.textContent = text;
+      line.replaceChildren(typed, rest);
+      return { text, typed, rest };
+    });
+
+    let index = 0;
+    let frame = 0;
+    let typing = false;
+
+    const paint = (i: number, count: number) => {
+      const { text, typed, rest } = parts[i]!;
+      typed.textContent = text.slice(0, count);
+      rest.textContent = text.slice(count);
+    };
+
+    const settle = () => {
+      cancelAnimationFrame(frame);
+      typing = false;
+      paint(index, parts[index]!.text.length);
+      // On the last line the "continue" controls give way to the gallery link (see CSS).
+      box.toggleAttribute('data-last', index === lines.length - 1);
+    };
+
+    const type = (i: number) => {
+      index = i;
+      lines.forEach((line, k) => line.toggleAttribute('data-current', k === i));
+      typing = true;
+      const started = performance.now();
+      const total = parts[i]!.text.length;
+      const step = (now: number) => {
+        const count = Math.min(total, Math.floor(((now - started) / 1000) * CHARS_PER_SECOND));
+        paint(i, count);
+        if (count < total) frame = requestAnimationFrame(step);
+        else settle();
+      };
+      paint(i, 0);
+      frame = requestAnimationFrame(step);
+    };
+
+    const advance = () => {
+      if (typing) settle();
+      else if (index < lines.length - 1) type(index + 1);
+    };
+
+    const showAll = () => {
+      cancelAnimationFrame(frame);
+      typing = false;
+      parts.forEach((_, i) => paint(i, parts[i]!.text.length));
+      box.removeAttribute('data-enhanced');
+    };
+
+    next.addEventListener('click', (event) => {
+      event.stopPropagation();
+      advance();
+    });
+    skip.addEventListener('click', (event) => {
+      event.stopPropagation();
+      showAll();
+    });
+    // Click anywhere on the box to continue, as in a visual novel.
+    box.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a, button')) return;
+      if (box.hasAttribute('data-enhanced')) advance();
+    });
+
+    box.setAttribute('data-enhanced', '');
+    box.setAttribute('data-ready', '');
+    type(0);
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('[data-dialogue]').forEach(setUp);
+  });
+</script>
+
+<style>
+  .stage {
+    padding-block-start: var(--space-lg);
+  }
+
+  .stage__frame {
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-height: clamp(26rem, 68vh, 40rem);
+    overflow: hidden;
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+    isolation: isolate;
+  }
+
+  .stage__scene {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .stage__scene :global(.art) {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .stage__title {
+    align-self: start;
+    padding: var(--space-xl) var(--space-xl) 0;
+    font-size: clamp(3rem, 1.6rem + 7vw, 6rem);
+    letter-spacing: -0.03em;
+  }
+
+  /* The dialogue box: a pane of dark glass over the scene, the one place the
+     Studio uses blur, because that is what a visual novel's text box is. */
+  .dialogue {
+    margin: var(--space-lg);
+    padding: var(--space-lg) var(--space-xl) var(--space-md);
+    border: var(--border-w) solid var(--line-strong);
+    border-radius: var(--radius-md);
+    background-color: oklch(15.5% 0.028 292 / 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .dialogue[data-enhanced] {
+    cursor: pointer;
+  }
+
+  .dialogue__name {
+    display: inline-block;
+    margin-block-end: var(--space-xs);
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .dialogue__lines {
+    display: grid;
+    gap: var(--space-xs);
+    max-width: 62ch;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--step-1);
+    line-height: 1.5;
+  }
+
+  /* Enhanced: all lines share one cell, so the box is as tall as the longest
+     line and never jumps; only the current line is visible. */
+  .dialogue[data-enhanced] .dialogue__lines li {
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+
+  .dialogue[data-enhanced] .dialogue__lines li[data-current] {
+    visibility: visible;
+  }
+
+  .dialogue__lines :global(.dialogue__rest) {
+    visibility: hidden;
+  }
+
+  .dialogue__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-xs) var(--space-md);
+    min-height: 2.75rem;
+    margin-block-start: var(--space-sm);
+  }
+
+  .dialogue__next,
+  .dialogue__skip,
+  .dialogue__end {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    padding-inline: var(--space-sm);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: none;
+    color: var(--accent-2);
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .dialogue__skip {
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  .dialogue__next:hover,
+  .dialogue__end:hover {
+    background-color: var(--accent-soft);
+  }
+
+  .dialogue__skip:hover {
+    color: var(--ink);
+  }
+
+  /* Which controls show: the gallery link by default and on the last line;
+     Continue and Skip while there are lines still to come. */
+  .dialogue:not([data-enhanced]) .dialogue__next,
+  .dialogue:not([data-enhanced]) .dialogue__skip,
+  .dialogue[data-last] .dialogue__next,
+  .dialogue[data-last] .dialogue__skip,
+  .dialogue[data-enhanced]:not([data-last]) .dialogue__end {
+    display: none;
+  }
+
+  /* A slow nudge on the "continue" arrow while it waits. */
+  .dialogue__next :global(svg) {
+    animation: nudge 1.4s var(--ease-in-out) infinite;
+  }
+
+  @keyframes nudge {
+    50% {
+      translate: 3px 0;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .stage__title {
+      padding: var(--space-lg) var(--space-lg) 0;
+    }
+
+    .dialogue {
+      margin: var(--space-sm);
+      padding: var(--space-md) var(--space-md) var(--space-xs);
+    }
+  }
+</style>
