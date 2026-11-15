@@ -1,0 +1,44 @@
+# Builds the site and publishes it to GitHub Pages.
+# This is Astro's official workflow: https://docs.astro.build/en/guides/deploy/github/
+#
+# One-time setup: in the repository, open Settings → Pages and set
+# "Source" to "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  # Publish every time `main` changes
+  push:
+    branches: [main]
+  # Allow running it by hand from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a newer push cancel a deploy that is still queued, but never one that
+# is already publishing.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+      - name: Install, build and upload the site
+        uses: withastro/action@v6
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

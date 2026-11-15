@@ -1,0 +1,164 @@
+---
+/**
+ * Shared top bar: identical structure on every page. Only tokens change
+ * between worlds.
+ */
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+import { WORLDS } from '../data/taxonomy';
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+
+const links = [
+  { href: WORLDS.lab.path, label: WORLDS.lab.label, world: 'lab' },
+  { href: WORLDS.studio.path, label: WORLDS.studio.label, world: 'studio' },
+  { href: WORLDS.journal.path, label: WORLDS.journal.label, world: 'journal' },
+  { href: '/about/', label: 'About', world: null },
+];
+---
+
+<header class="topbar ui">
+  <div class="wrap topbar__row">
+    <a class="topbar__name" href="/" aria-current={isCurrent('/') ? 'page' : undefined}>{site.name}</a>
+
+    <nav class="topbar__nav" aria-label="Primary">
+      <ul>
+        {
+          links.map(({ href, label, world }) => (
+            <li>
+              <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>
+                {world && <span class="swatch" data-world={world} aria-hidden="true" />}
+                <span>{label}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="btn topbar__cv" href={site.cvPath} download aria-label="Download CV (PDF)">
+      <span>CV</span>
+      <Icon name="download" />
+    </a>
+  </div>
+</header>
+
+<style>
+  .topbar {
+    border-block-end: var(--border-w) solid var(--line);
+  }
+
+  .topbar__row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'name nav cv';
+    align-items: center;
+    column-gap: var(--space-lg);
+    min-height: 4.25rem;
+  }
+
+  .topbar__name {
+    grid-area: name;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--ink);
+    font-size: var(--step-1);
+    font-weight: 750;
+    letter-spacing: -0.025em;
+    text-decoration: none;
+  }
+
+  .topbar__nav {
+    grid-area: nav;
+  }
+
+  .topbar__nav ul {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .topbar__nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: 2.75rem;
+    padding-inline: var(--space-sm);
+    border-radius: var(--radius-md);
+    color: var(--ink-soft);
+    font-weight: 550;
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-world);
+  }
+
+  .topbar__nav a:hover,
+  .topbar__nav a[aria-current] {
+    color: var(--ink);
+  }
+
+  /* Current section: a rule in the world's accent, sitting on the bar's edge. */
+  .topbar__nav a::after {
+    content: '';
+    position: absolute;
+    inset-inline: var(--space-sm);
+    inset-block-end: 0.35rem;
+    height: 2px;
+    background-color: var(--accent);
+    scale: 0 1;
+    transform-origin: left;
+    transition: scale var(--dur-base) var(--ease-world);
+  }
+
+  .topbar__nav a:hover::after,
+  .topbar__nav a[aria-current]::after {
+    scale: 1 1;
+  }
+
+  /* A paint chip of the world the link leads to: that world's ground with a
+     dot of its accent. It re-reads tokens through its own data-world. */
+  .swatch {
+    display: inline-grid;
+    place-items: center;
+    width: 0.8rem;
+    height: 0.8rem;
+    border: var(--border-w) solid var(--line-strong);
+    border-radius: 2px;
+    background-color: var(--bg);
+    flex: none;
+  }
+
+  .swatch::after {
+    content: '';
+    width: 0.3rem;
+    height: 0.3rem;
+    border-radius: 50%;
+    background-color: var(--accent);
+  }
+
+  .topbar__cv {
+    grid-area: cv;
+  }
+
+  /* Narrow screens: name and CV on the first row, sections on the second.
+     No menu button, so the nav works without JavaScript. */
+  @media (max-width: 44rem) {
+    .topbar__row {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        'name cv'
+        'nav nav';
+      padding-block-start: var(--space-xs);
+    }
+
+    .topbar__nav ul {
+      justify-content: space-between;
+      margin-inline: calc(-1 * var(--space-sm));
+    }
+  }
+</style>

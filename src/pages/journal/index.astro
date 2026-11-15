@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import ScaffoldList from '../../components/ScaffoldList.astro';
+import { scaffoldItems } from '../../lib/scaffold';
+
+const items = (await scaffoldItems()).filter((i) => i.world === 'journal');
+---
+
+<Base title="Journal" world="journal">
+  <div class="wrap page">
+    <h1>Journal</h1>
+    <p class="lede">Posts and devlogs, about once a month.</p>
+    <ScaffoldList items={items} note="Scaffold view. The post index, post pages and RSS feed arrive in step 3." />
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-block-start: var(--space-3xl);
+  }
+
+  .lede {
+    max-width: var(--measure);
+    margin-block: var(--space-md) var(--space-2xl);
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+  }
+</style>

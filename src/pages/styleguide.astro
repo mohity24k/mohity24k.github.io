@@ -1,0 +1,35 @@
+---
+/**
+ * Living reference for the token system. Not linked from the site and kept
+ * out of search engines; open /styleguide/ while working on styles.
+ */
+import Base from '../layouts/Base.astro';
+import TokenSpecimen from '../components/TokenSpecimen.astro';
+---
+
+<Base title="Style guide" world="neutral" noindex>
+  <div class="wrap intro">
+    <h1>Style guide</h1>
+    <p>
+      Four worlds, one skeleton. Each band below is the same component with a different <code>data-world</code>{' '}
+      attribute; nothing else changes between them. Spacing, grid, control shape and focus rings are shared.
+    </p>
+  </div>
+
+  <TokenSpecimen world="neutral" />
+  <TokenSpecimen world="lab" />
+  <TokenSpecimen world="studio" />
+  <TokenSpecimen world="journal" />
+</Base>
+
+<style>
+  .intro {
+    padding-block: var(--space-3xl) var(--space-2xl);
+  }
+
+  .intro p {
+    max-width: var(--measure);
+    margin-block-start: var(--space-md);
+    color: var(--ink-soft);
+  }
+</style>
