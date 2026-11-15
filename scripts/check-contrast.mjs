@@ -29,6 +29,10 @@ const PAIRS = [
   ['line-strong', 'bg-raised', 3, 'control borders on cards'],
   ['focus', 'bg', 3, 'focus ring'],
   ['focus', 'bg-raised', 3, 'focus ring on cards'],
+  ['error', 'bg', 4.5, 'form error text'],
+  ['error', 'bg-raised', 4.5, 'form error text on cards'],
+  ['success', 'bg', 4.5, 'form success text'],
+  ['success', 'bg-raised', 4.5, 'form success text on cards'],
 ];
 
 /** Pull `--name: oklch(L% C H)` declarations out of one world's rule block. */

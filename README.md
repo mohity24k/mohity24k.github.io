@@ -50,7 +50,7 @@ src/
   data/
     site.ts             name, links, CV path, contact-form key
     studio.ts           the dialogue lines that open /studio/
-    about.ts            certifications (and, from step 4, the About page facts)
+    about.ts            bio, skills, education, certifications, activities, photo captions
     taxonomy.ts         tags, platforms, statuses
   styles/
     tokens.css          skeleton tokens + one block of tokens per world
@@ -60,6 +60,7 @@ src/
     feed.ts             turns projects, posts and publications into cards
     art.ts              generated cover artwork (used until an entry has a cover)
   assets/             drop portrait.jpg here to replace the stand-in portrait
+    life/               photos for the About page strip (lab.jpg, chess.jpg, …)
   components/         shared pieces
   pages/              routes
 public/cv/            the downloadable CV (stable file name)

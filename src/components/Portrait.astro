@@ -23,15 +23,16 @@ const photo = Object.values(files)[0]?.default;
 
 {
   photo ? (
-    <Image
-      class="portrait"
-      src={photo}
-      alt={`Portrait of ${site.name}`}
-      width={size * 2}
-      height={Math.round(size * 2.5)}
-      fit="cover"
-      loading="eager"
-    />
+    <div class="portrait portrait--photo">
+      <Image
+        src={photo}
+        alt={`Portrait of ${site.name}`}
+        width={size * 2}
+        height={Math.round(size * 2.5)}
+        fit="cover"
+        loading="eager"
+      />
+    </div>
   ) : (
     <div class="portrait portrait--stand-in" role="img" aria-label="Portrait coming soon">
       <span class="world-surface" data-world="lab" />
@@ -47,13 +48,18 @@ const photo = Object.values(files)[0]?.default;
     aspect-ratio: 4 / 5;
     border: var(--border-w) solid var(--line-strong);
     border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .portrait--photo :global(img) {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 
   .portrait--stand-in {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    overflow: hidden;
   }
 
   .portrait--stand-in span {

@@ -80,32 +80,6 @@ const socials = site.socials.filter((s) => s.url || !s.hideIfMissing);
     line-height: 1.5;
   }
 
-  /* A phrase painted in the world it names. It is a link into that world. */
-  .phrase {
-    padding: 0.08em 0.32em;
-    border: var(--border-w) solid var(--line-strong);
-    border-radius: var(--radius-md);
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-    color: var(--ink);
-    font-family: var(--font-display);
-    font-size: 0.86em;
-    font-style: var(--display-style);
-    font-stretch: var(--display-stretch);
-    font-weight: var(--display-weight);
-    letter-spacing: var(--display-tracking);
-    line-height: inherit;
-    text-decoration: none;
-    transition:
-      border-color var(--dur-fast) var(--ease-out-quart),
-      box-shadow var(--dur-fast) var(--ease-out-quart);
-  }
-
-  .phrase:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent);
-  }
-
   .intro__links {
     display: flex;
     flex-wrap: wrap;

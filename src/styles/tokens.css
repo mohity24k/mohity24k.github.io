@@ -96,7 +96,7 @@
               --ink --ink-soft --ink-faint
               --line --line-strong
               --accent --accent-ink --accent-text --accent-soft --accent-2
-              --focus
+              --focus --error --success (form feedback)
    Type       --font-display --display-weight --display-style
               --display-stretch --display-tracking --display-leading
               --font-body --body-size --body-leading
@@ -129,6 +129,8 @@
   --accent-soft: oklch(94% 0.008 265);
   --accent-2: oklch(44% 0.015 265);
   --focus: oklch(21% 0.015 265);
+  --error: oklch(48% 0.19 25);
+  --success: oklch(42% 0.11 155);
 
   --font-display: var(--family-sans);
   --display-weight: 750;
@@ -179,6 +181,8 @@
   --accent-soft: oklch(92% 0.05 155);
   --accent-2: oklch(54% 0.185 25);
   --focus: oklch(41% 0.105 158);
+  --error: oklch(47% 0.18 25);
+  --success: oklch(41% 0.105 158);
 
   --font-display: var(--family-sans);
   --display-weight: 650;
@@ -236,6 +240,8 @@
   --accent-soft: oklch(28% 0.085 300);
   --accent-2: oklch(84% 0.115 200);
   --focus: oklch(84% 0.115 200);
+  --error: oklch(78% 0.13 20);
+  --success: oklch(84% 0.13 160);
 
   --font-display: var(--family-wide);
   --display-weight: 800;
@@ -288,6 +294,8 @@
   --accent-soft: oklch(88.5% 0.055 62);
   --accent-2: oklch(24% 0.03 50);
   --focus: oklch(47% 0.135 38);
+  --error: oklch(44% 0.17 22);
+  --success: oklch(40% 0.1 150);
 
   --font-display: var(--family-serif);
   --display-weight: 500;
