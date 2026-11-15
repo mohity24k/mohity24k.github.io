@@ -1,0 +1,160 @@
+---
+/**
+ * "Currently building": one strip per project with `status: in-progress`,
+ * painted in that project's world, with a link to its latest devlog.
+ * Renders nothing when no project is in progress.
+ */
+import { Image } from 'astro:assets';
+import CoverArt from './CoverArt.astro';
+import Icon from './Icon.astro';
+import { getCurrentlyBuilding } from '../lib/feed';
+
+const building = await getCurrentlyBuilding();
+---
+
+{
+  building.length > 0 && (
+    <section class="building wrap" aria-label="Currently building">
+      {building.map(({ item, latestPost }) => (
+        <article class="strip world-surface" data-world={item.world}>
+          <div class="strip__art">
+            {item.cover ? (
+              <Image src={item.cover} alt={item.coverAlt} widths={[320, 640]} sizes="(min-width: 44rem) 14rem, 100vw" />
+            ) : (
+              <CoverArt motif={item.art} seed={`${item.key}/strip`} text={item.artText} />
+            )}
+          </div>
+
+          <div class="strip__text">
+            <h2 class="strip__title">
+              <span class="strip__lead label">
+                <span class="pulse" aria-hidden="true" />
+                Currently building
+              </span>{' '}
+              <a href={item.href}>{item.title}</a>
+            </h2>
+            <p class="strip__summary">{item.summary}</p>
+          </div>
+
+          {latestPost && (
+            <a class="btn strip__devlog" href={latestPost.href} aria-label={`Latest devlog: ${latestPost.title}`}>
+              <span>Latest devlog</span>
+              <Icon name="arrow" />
+            </a>
+          )}
+        </article>
+      ))}
+    </section>
+  )
+}
+
+<style>
+  .building {
+    display: grid;
+    gap: var(--space-md);
+    padding-block-start: var(--space-2xl);
+  }
+
+  .strip {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-lg) var(--space-xl);
+    overflow: hidden;
+    padding-inline-end: var(--space-xl);
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+  }
+
+  .strip__art {
+    align-self: stretch;
+    border-inline-end: var(--border-w) solid var(--line);
+  }
+
+  .strip__art :global(.art),
+  .strip__art :global(img) {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    min-height: 8.5rem;
+    object-fit: cover;
+  }
+
+  .strip__text {
+    padding-block: var(--space-lg);
+  }
+
+  .strip__title {
+    font-size: var(--step-2);
+    line-height: 1.2;
+  }
+
+  .strip__lead {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    margin-inline-end: 0.6em;
+    color: var(--accent-2);
+    vertical-align: middle;
+  }
+
+  .strip__title a {
+    color: inherit;
+    text-decoration-color: transparent;
+  }
+
+  .strip__title a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .strip__summary {
+    max-width: 58ch;
+    margin-block-start: var(--space-xs);
+    color: var(--ink-soft);
+  }
+
+  /* A slow heartbeat: this work is live. Still under reduced motion. */
+  .pulse {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: pulse 2.4s var(--ease-in-out) infinite;
+  }
+
+  @keyframes pulse {
+    50% {
+      opacity: 0.35;
+      scale: 0.8;
+    }
+  }
+
+  @media (max-width: 52rem) {
+    .strip {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      padding-inline-end: 0;
+    }
+
+    .strip__art {
+      border-inline-end: 0;
+      border-block-end: var(--border-w) solid var(--line);
+    }
+
+    .strip__art :global(.art),
+    .strip__art :global(img) {
+      min-height: 0;
+      aspect-ratio: 16 / 6;
+    }
+
+    .strip__text {
+      padding: var(--space-lg) var(--space-lg) var(--space-md);
+    }
+
+    .strip__devlog {
+      justify-self: start;
+      margin: 0 var(--space-lg) var(--space-lg);
+    }
+  }
+</style>

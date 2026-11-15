@@ -43,9 +43,10 @@ body::before {
 /* Any element carrying data-world re-reads colour and type from its own
    world's tokens. This is the whole theming mechanism. <html> is left out on
    purpose: its font-size must stay at the browser default so 1rem means the
-   same thing in every world. <body> picks the page's world up by inheritance. */
+   same thing in every world. <body> picks the page's world up by inheritance.
+   :where() keeps specificity at zero so any component class can override. */
 body,
-[data-world]:not(html) {
+:where([data-world]:not(html)) {
   color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--body-size);

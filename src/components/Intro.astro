@@ -1,0 +1,165 @@
+---
+/**
+ * Home page opening: portrait, greeting, one sentence that names the three
+ * worlds in their own voices, and where else to find Mohit.
+ */
+import Icon from './Icon.astro';
+import Portrait from './Portrait.astro';
+import { site } from '../data/site';
+import { WORLDS } from '../data/taxonomy';
+
+const socials = site.socials.filter((s) => s.url || !s.hideIfMissing);
+---
+
+<section class="intro wrap">
+  <div class="intro__portrait">
+    <Portrait />
+  </div>
+
+  <div class="intro__text">
+    <h1>Hi, I’m Mohit.</h1>
+
+    <p class="intro__line">
+      {
+        site.intro.map((part) =>
+          part.world ? (
+            <a class="phrase world-surface" data-world={part.world} href={WORLDS[part.world].path}>
+              {part.text}
+            </a>
+          ) : (
+            part.text
+          ),
+        )
+      }
+    </p>
+
+    <ul class="intro__links ui">
+      {
+        socials.map(({ label, url }) => (
+          <li>
+            {url ? (
+              <a class="btn btn--quiet" href={url} target="_blank" rel="noopener me">
+                <span>{label}</span>
+                <Icon name="external" />
+                <span class="sr-only">(opens in a new tab)</span>
+              </a>
+            ) : (
+              <span class="intro__pending">
+                <span>{label}</span>
+                <span class="soon">Coming soon</span>
+              </span>
+            )}
+          </li>
+        ))
+      }
+      <li>
+        <a class="btn btn--quiet" href={`mailto:${site.email}`}>
+          <Icon name="mail" />
+          <span>Email</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-lg) var(--space-xl);
+    padding-block-start: var(--space-3xl);
+  }
+
+  .intro__line {
+    max-width: 30ch;
+    margin-block-start: var(--space-md);
+    color: var(--ink-soft);
+    font-size: var(--step-3);
+    letter-spacing: -0.015em;
+    line-height: 1.5;
+  }
+
+  /* A phrase painted in the world it names. It is a link into that world. */
+  .phrase {
+    padding: 0.08em 0.32em;
+    border: var(--border-w) solid var(--line-strong);
+    border-radius: var(--radius-md);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 0.86em;
+    font-style: var(--display-style);
+    font-stretch: var(--display-stretch);
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    line-height: inherit;
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) var(--ease-out-quart),
+      box-shadow var(--dur-fast) var(--ease-out-quart);
+  }
+
+  .phrase:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .intro__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs) var(--space-sm);
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .intro__pending {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    padding-inline: var(--space-xs);
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  /* Narrow screens: portrait sits beside the greeting; the sentence and the
+     links then run the full width underneath. */
+  @media (max-width: 40rem) {
+    .intro {
+      grid-template-columns: 3.75rem minmax(0, 1fr);
+      grid-template-areas:
+        'portrait greeting'
+        'line line'
+        'links links';
+      align-items: center;
+      gap: var(--space-md);
+      padding-block-start: var(--space-xl);
+    }
+
+    .intro__text {
+      display: contents;
+    }
+
+    .intro__portrait {
+      grid-area: portrait;
+    }
+
+    .intro h1 {
+      grid-area: greeting;
+    }
+
+    .intro__line {
+      grid-area: line;
+      margin-block-start: 0;
+    }
+
+    .intro__links {
+      grid-area: links;
+      margin-block-start: 0;
+    }
+  }
+</style>

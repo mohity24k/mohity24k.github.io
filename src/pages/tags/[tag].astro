@@ -1,0 +1,46 @@
+---
+/**
+ * One static page per tag that has work: /tags/pharma/, /tags/ai/, …
+ * These are the links to put on a CV. They need no JavaScript.
+ */
+import Base from '../../layouts/Base.astro';
+import WorkFeed from '../../components/WorkFeed.astro';
+import { TAGS, type Tag } from '../../data/taxonomy';
+import { countTags, getFeed } from '../../lib/feed';
+import { site } from '../../data/site';
+
+export async function getStaticPaths() {
+  const items = await getFeed();
+  return countTags(items).map(({ tag }) => ({ params: { tag } }));
+}
+
+const tag = Astro.params.tag as Tag;
+const label = TAGS[tag];
+const all = await getFeed();
+const items = all.filter((item) => item.tags.includes(tag));
+const count = `${items.length} ${items.length === 1 ? 'piece' : 'pieces'}`;
+---
+
+<Base title={label} description={`${label}: ${count} of work by ${site.name}, across Lab, Studio and Journal.`}>
+  <header class="wrap head">
+    <h1>{label}</h1>
+    <p>
+      {count} of work tagged {label}, from across the Lab, the Studio and the Journal.
+    </p>
+  </header>
+
+  <WorkFeed items={items} tags={countTags(all)} total={all.length} active={tag} />
+</Base>
+
+<style>
+  .head {
+    padding-block-start: var(--space-3xl);
+  }
+
+  .head p {
+    max-width: var(--measure);
+    margin-block-start: var(--space-md);
+    color: var(--ink-soft);
+    font-size: var(--step-1);
+  }
+</style>

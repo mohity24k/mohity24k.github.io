@@ -102,9 +102,10 @@
               --font-body --body-size --body-leading
               --font-label --label-size --label-weight --label-style
               --label-stretch --label-tracking --label-transform
+              --font-data --data-stretch (numbers and measurements)
    Texture    --texture --texture-size (tiles, scrolls with the page)
               --ambient (fixed light behind the page, does not tile)
-              --card-shadow
+              --card-shadow --card-shadow-hover
    Motion     --ease-world --dur-world
    -------------------------------------------------------------------------- */
 
@@ -145,11 +146,14 @@
   --label-stretch: 100%;
   --label-tracking: 0;
   --label-transform: none;
+  --font-data: var(--family-sans);
+  --data-stretch: 100%;
 
   --texture: none;
   --texture-size: auto;
   --ambient: none;
   --card-shadow: 0 1px 2px oklch(21% 0.015 265 / 0.06), 0 8px 24px -12px oklch(21% 0.015 265 / 0.14);
+  --card-shadow-hover: 0 2px 4px oklch(21% 0.015 265 / 0.08), 0 18px 36px -16px oklch(21% 0.015 265 / 0.26);
 
   --ease-world: var(--ease-out-quart);
   --dur-world: var(--dur-base);
@@ -192,6 +196,8 @@
   --label-stretch: 87.5%;
   --label-tracking: 0;
   --label-transform: none;
+  --font-data: var(--family-mono);
+  --data-stretch: 87.5%;
 
   /* Graph paper: fine ruling every 0.75rem, heavier line every fifth. */
   --grid-fine: oklch(41% 0.105 158 / 0.06);
@@ -204,6 +210,7 @@
   --texture-size: 3.75rem 3.75rem, 3.75rem 3.75rem, 0.75rem 0.75rem, 0.75rem 0.75rem;
   --ambient: none;
   --card-shadow: 0 1px 0 oklch(23% 0.03 165 / 0.05), 0 6px 18px -12px oklch(23% 0.03 165 / 0.2);
+  --card-shadow-hover: 0 2px 0 oklch(23% 0.03 165 / 0.06), 0 16px 30px -16px oklch(41% 0.105 158 / 0.4);
 
   /* Precise and calm: short, no overshoot. */
   --ease-world: var(--ease-out-quart);
@@ -246,6 +253,8 @@
   --label-stretch: 112%;
   --label-tracking: 0.07em;
   --label-transform: uppercase;
+  --font-data: var(--family-wide);
+  --data-stretch: 112%;
 
   --texture: none;
   --texture-size: auto;
@@ -253,6 +262,7 @@
     radial-gradient(70rem 42rem at 88% -12%, oklch(52% 0.2 300 / 0.3), transparent 62%),
     radial-gradient(56rem 38rem at -8% 108%, oklch(70% 0.12 200 / 0.16), transparent 62%);
   --card-shadow: 0 1px 0 oklch(95% 0.012 292 / 0.06) inset, 0 18px 40px -20px oklch(5% 0.03 292 / 0.9);
+  --card-shadow-hover: 0 1px 0 oklch(95% 0.012 292 / 0.1) inset, 0 22px 50px -18px oklch(73% 0.155 300 / 0.55);
 
   /* Cinematic: slower, long deceleration. */
   --ease-world: var(--ease-out-expo);
@@ -295,12 +305,15 @@
   --label-stretch: 100%;
   --label-tracking: 0;
   --label-transform: none;
+  --font-data: var(--family-serif);
+  --data-stretch: 100%;
 
   /* Paper tooth: a small fractal-noise tile, barely there. */
   --texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
   --texture-size: 240px 240px;
   --ambient: none;
   --card-shadow: 0 1px 0 oklch(24% 0.03 50 / 0.06), 0 10px 22px -16px oklch(24% 0.03 50 / 0.3);
+  --card-shadow-hover: 0 2px 0 oklch(24% 0.03 50 / 0.07), 0 18px 30px -18px oklch(47% 0.135 38 / 0.45);
 
   /* Unhurried: soft and even. */
   --ease-world: var(--ease-in-out);

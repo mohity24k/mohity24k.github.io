@@ -11,6 +11,9 @@ platform: unreleased
 #   cover  → add `cover: ./visual-novel.png` (your best key art so far)
 # When it has a title, change `title`. When it ships, set `platform: itch`
 # (or wherever it lives) and add `liveUrl`.
+# TODO(mohit): the write-up below states only what is on your CV. To finish it:
+#   - Premise, engine, how far along it is.
+#   - Your pipeline: models, character consistency, how video is used.
 placeholder: [date, cover, body]
 ---
 
@@ -18,10 +21,6 @@ placeholder: [date, cover, body]
 
 A visual novel I'm building. Every asset is generated with **ComfyUI** and open-source image and video models.
 
-<!-- TODO(mohit): premise, engine, how far along it is. -->
-
 ## How it's made
-
-<!-- TODO(mohit): your pipeline: models, character consistency, how video is used. -->
 
 Progress is written up in the devlogs listed below.

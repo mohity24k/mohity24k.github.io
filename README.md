@@ -8,6 +8,7 @@ Mohit Gedam's personal site: one home base with three visual worlds.
 | Studio | `/studio/` | Games, AI art gallery, XR |
 | Journal | `/journal/` | Posts and devlogs |
 | Neutral | `/`, `/about/` | Home hub, About, contact, CV |
+| Neutral | `/tags/<tag>/` | Everything with one tag, across worlds. Good links for a CV, e.g. `/tags/pharma/` |
 
 Built with [Astro](https://astro.build) and deployed to GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`. The design brief is in [`docs/DESIGN.md`](docs/DESIGN.md).
 
@@ -53,6 +54,10 @@ src/
     tokens.css          skeleton tokens + one block of tokens per world
     base.css            reset and shared classes; reads tokens only
   layouts/Base.astro  the one layout: sets data-world, top bar, footer
+  lib/
+    feed.ts             turns projects, posts and publications into cards
+    art.ts              generated cover artwork (used until an entry has a cover)
+  assets/             drop portrait.jpg here to replace the stand-in portrait
   components/         shared pieces
   pages/              routes
 public/cv/            the downloadable CV (stable file name)

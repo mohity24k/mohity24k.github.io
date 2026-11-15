@@ -13,14 +13,17 @@ featuredOrder: 2
 #   cover    → add `cover: ./green-chemistry-calculator.png` (a dashboard screenshot works well)
 #   liveUrl  → add `liveUrl: https://<your-app>.streamlit.app`
 #   codeUrl  → add `codeUrl: https://github.com/...`
+# TODO(mohit): the write-up below states only what is on your CV. To finish it:
+#   - Who this is for and what prompted it.
+#   - Add detail on each step.
+#   - What it can process today, an example reaction and its scores.
+#   - Add the rest of the stack (PDF parsing, cheminformatics libraries).
 placeholder: [date, cover, liveUrl, codeUrl, body]
 ---
 
 ## Problem
 
 Working out green chemistry and reaction metrics automatically from a written procedure.
-
-<!-- TODO(mohit): who this is for and what prompted it. -->
 
 ## What I built
 
@@ -31,16 +34,11 @@ A pipeline that goes from a document to a scorecard:
 3. Calculation of **PMI**, **Atom Economy**, **E-Factor** and **EcoScale**, plus **GHS** hazard information
 4. A **Streamlit dashboard** to explore the results
 
-<!-- TODO(mohit): add detail on each step. -->
-
 ## Results
 
 A Streamlit dashboard that reports the metrics above.
-
-<!-- TODO(mohit): what it can process today, an example reaction and its scores. -->
 
 ## Stack
 
 Streamlit.
 
-<!-- TODO(mohit): add the rest of the stack (PDF parsing, cheminformatics libraries). -->

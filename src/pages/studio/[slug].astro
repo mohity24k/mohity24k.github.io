@@ -1,0 +1,18 @@
+---
+import { getCollection, render } from 'astro:content';
+import EntryPage from '../../components/EntryPage.astro';
+import { getFeed } from '../../lib/feed';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => data.world === 'studio');
+  return projects.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const item = (await getFeed()).find((i) => i.key === `projects/${entry.id}`)!;
+const { Content } = await render(entry);
+---
+
+<EntryPage item={item} back={{ href: '/studio/', label: 'All Studio work' }}>
+  <Content />
+</EntryPage>

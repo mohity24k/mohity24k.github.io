@@ -99,6 +99,13 @@ const projects = defineCollection({
           one the card draws generated artwork in its world's style. */
       cover: image().optional(),
       coverAlt: z.string().optional(),
+      /** Which generated artwork to draw when there is no cover image.
+          Leave it out to let the site choose from the world and tags. */
+      art: z
+        .enum(['molecule', 'network', 'waveform', 'scene'], {
+          error: '"art" must be one of: molecule, network, waveform (Lab) or scene (Studio).',
+        })
+        .optional(),
       /** Featured projects appear in "Selected work" on the home page. */
       featured: z.boolean().default(false),
       /** Lower numbers come first in "Selected work". */

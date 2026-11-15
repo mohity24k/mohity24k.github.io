@@ -1,16 +1,16 @@
 ---
 import Base from '../../layouts/Base.astro';
-import ScaffoldList from '../../components/ScaffoldList.astro';
-import { scaffoldItems } from '../../lib/scaffold';
+import CardGrid from '../../components/CardGrid.astro';
+import { getFeed } from '../../lib/feed';
 
-const items = (await scaffoldItems()).filter((i) => i.world === 'journal');
+const items = (await getFeed()).filter((item) => item.world === 'journal');
 ---
 
-<Base title="Journal" world="journal">
+<Base title="Journal" world="journal" description="Posts and devlogs, about once a month.">
   <div class="wrap page">
     <h1>Journal</h1>
     <p class="lede">Posts and devlogs, about once a month.</p>
-    <ScaffoldList items={items} note="Scaffold view. The post index, post pages and RSS feed arrive in step 3." />
+    <CardGrid items={items} heading="h2" />
   </div>
 </Base>
 
@@ -22,7 +22,7 @@ const items = (await scaffoldItems()).filter((i) => i.world === 'journal');
   .lede {
     max-width: var(--measure);
     margin-block: var(--space-md) var(--space-2xl);
-    font-size: var(--step-1);
     color: var(--ink-soft);
+    font-size: var(--step-1);
   }
 </style>

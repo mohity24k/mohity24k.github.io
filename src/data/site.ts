@@ -12,12 +12,30 @@ export interface SocialLink {
   hideIfMissing?: boolean;
 }
 
+export interface IntroPart {
+  text: string;
+  world?: 'lab' | 'studio' | 'journal';
+}
+
 export const site = {
   name: 'Mohit Gedam',
   /** Canonical origin. Must match `site` in astro.config.mjs. */
   url: 'https://mohity24k.github.io',
   /** One-line positioning used on the home page and in meta descriptions. */
   tagline: 'I build ML for chemistry & drug problems, and games with generative AI.',
+  /**
+   * The opening line on the home page. A part with a `world` is painted in
+   * that world's style and links to it.
+   */
+  intro: [
+    { text: 'I build ' },
+    { text: 'ML for chemistry & drug problems', world: 'lab' },
+    { text: ' and ' },
+    { text: 'games with generative AI', world: 'studio' },
+    { text: ', and write about both in ' },
+    { text: 'a monthly journal', world: 'journal' },
+    { text: '.' },
+  ] as IntroPart[],
   description:
     'Mohit Gedam: final-year B.Tech student in Pharmaceutical Chemistry & Technology at ICT Mumbai, minor in AI/ML. Machine learning for chemistry and drug problems, a visual novel made with open-source generative models, and a monthly journal.',
   locale: 'en',

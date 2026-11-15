@@ -1,0 +1,24 @@
+---
+import { getCollection, render } from 'astro:content';
+import EntryPage from '../../../components/EntryPage.astro';
+import { getFeed } from '../../../lib/feed';
+
+export async function getStaticPaths() {
+  const publications = await getCollection('publications');
+  return publications.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const item = (await getFeed()).find((i) => i.key === `publications/${entry.id}`)!;
+const { Content } = await render(entry);
+const issue = [data.volume, data.issue && `(${data.issue})`].filter(Boolean).join('');
+---
+
+<EntryPage item={item} back={{ href: '/lab/', label: 'All Lab work' }}>
+  <p>
+    {data.authors.join(', ')} ({data.year}). <em>{data.title}.</em>{' '}
+    {data.venue}{issue && `, ${issue}`}{data.pages && `, ${data.pages}`}.
+  </p>
+  <Content />
+</EntryPage>

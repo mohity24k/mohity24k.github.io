@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
 ---
 
 <Base title="About" world="neutral">
@@ -9,7 +10,7 @@ import Base from '../layouts/Base.astro';
       Final-year B.Tech student in Pharmaceutical Chemistry & Technology at ICT Mumbai, with a minor in AI/ML.
     </p>
     <p class="ui note" id="contact">
-      Scaffold view. The bio, skills, education, photo strip, contact form and CV download arrive in step 4.
+      The full page is on its way. Until then, write to <a href={`mailto:${site.email}`}>{site.email}</a>.
     </p>
   </div>
 </Base>
