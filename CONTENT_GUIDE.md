@@ -35,7 +35,7 @@ npm run todo
 - [ ] **GitHub link.** Set to `https://github.com/mohity24k`, taken from the repository name. Confirm or correct it.
 - [ ] **ORCID.** Add your ORCID URL. Until then the site shows "ORCID · Coming soon".
 - [ ] **LinkedIn.** Add the URL, or leave it as `null` to keep LinkedIn off the site.
-- [ ] **Contact form key.** Paste your Web3Forms key into `web3formsKey` (free at https://web3forms.com, sign up with your email). Until then the form opens the visitor's email app instead of sending.
+- [ ] **Contact form key.** Paste your Web3Forms key into `web3formsKey` (free at https://web3forms.com, sign up with your email). Until then the form opens the visitor's email app with the message filled in, instead of sending it.
 
 ### Files to drop in
 

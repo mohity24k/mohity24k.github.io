@@ -30,6 +30,9 @@ interface Props {
   article?: { published: Date; modified?: Date; tags?: string[] };
   /** Extra structured data (schema.org) for this page. */
   jsonLd?: Record<string, unknown>;
+  /** Load every world's display face up front. For a neutral page whose
+      first screen shows all three worlds' type and little else. */
+  preloadAllFonts?: boolean;
 }
 
 const {
@@ -41,6 +44,7 @@ const {
   imageAlt,
   article,
   jsonLd,
+  preloadAllFonts = false,
 } = Astro.props;
 
 const origin = Astro.site ?? new URL(site.url);
@@ -97,8 +101,8 @@ const shareUrl = new URL(share.src, origin);
         self-hosted with metrics-matched fallbacks, so text never jumps. */}
     <Font cssVariable="--font-schibsted" preload />
     <Font cssVariable="--font-martian" />
-    <Font cssVariable="--font-mona" preload={world === 'studio'} />
-    <Font cssVariable="--font-brygada" preload={world === 'journal'} />
+    <Font cssVariable="--font-mona" preload={world === 'studio' || preloadAllFonts} />
+    <Font cssVariable="--font-brygada" preload={world === 'journal' || preloadAllFonts} />
 
     {/* Runs before first paint. If the visitor allows motion, mark the page
         as waiting for its opening animation (see motion.css). If the
