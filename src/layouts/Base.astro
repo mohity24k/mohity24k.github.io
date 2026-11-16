@@ -9,6 +9,7 @@ import { Font } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
 import '../styles/tokens.css';
 import '../styles/base.css';
+import '../styles/motion.css';
 import TopBar from '../components/TopBar.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
@@ -50,6 +51,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url);
     <Font cssVariable="--font-mona" preload={world === 'studio'} />
     <Font cssVariable="--font-brygada" preload={world === 'journal'} />
 
+    {/* Runs before first paint. If the visitor allows motion, mark the page
+        as waiting for its opening animation (see motion.css). If the
+        animation code has not arrived in three seconds, stop waiting. */}
+    <script is:inline>
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.dataset.motion = 'pending';
+        setTimeout(() => {
+          const root = document.documentElement;
+          if (root.dataset.motion === 'pending') root.dataset.motion = 'off';
+        }, 3000);
+      }
+    </script>
+
     <ClientRouter />
   </head>
 
@@ -60,5 +74,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url);
       <slot />
     </main>
     <Footer />
+
+    <script>
+      import '../scripts/motion';
+    </script>
   </body>
 </html>

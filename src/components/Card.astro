@@ -25,10 +25,13 @@ interface Props {
 
 const { item, size = 'standard', heading: Heading = 'h3' } = Astro.props;
 const metrics = item.metrics.slice(0, 2);
+// A cover shares its name with the cover on the item's own page, so it
+// travels there when the card is opened.
+const coverName = `cover-${item.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
 ---
 
 <article class="card" data-world={item.world} data-size={size}>
-  <div class="card__media">
+  <div class="card__media" style={`view-transition-name: ${coverName}`}>
     {
       item.cover ? (
         <Image

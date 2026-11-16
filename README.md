@@ -55,6 +55,10 @@ src/
   styles/
     tokens.css          skeleton tokens + one block of tokens per world
     base.css            reset and shared classes; reads tokens only
+    motion.css          page transitions and the CSS half of the animations
+  scripts/
+    motion.ts           always loaded, tiny: transitions, reading progress
+    motion-gsap.ts      GSAP effects per world; loaded when idle, never under reduced motion
   layouts/Base.astro  the one layout: sets data-world, top bar, footer
   lib/
     feed.ts             turns projects, posts and publications into cards

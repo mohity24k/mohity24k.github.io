@@ -67,7 +67,7 @@ const buttonText: Record<string, string> = { Live: 'Live demo', Code: 'Source co
         }
       </div>
 
-      <div class="project__cover">
+      <div class="project__cover" style={`view-transition-name: cover-${item.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`}>
         {
           data.cover ? (
             <Image src={data.cover} alt={data.coverAlt ?? ''} widths={[480, 720, 960, 1280]} sizes="(min-width: 60rem) 34rem, 100vw" loading="eager" />
@@ -83,7 +83,7 @@ const buttonText: Record<string, string> = { Live: 'Live demo', Code: 'Source co
         <dl class="wrap project__metrics" aria-label="Results at a glance">
           {data.metrics.map((metric) => (
             <div>
-              <dt class="label">{metric.label}</dt>
+              <dt class="label" data-typein>{metric.label}</dt>
               <dd data-metric>{metric.value}</dd>
             </div>
           ))}
@@ -99,11 +99,11 @@ const buttonText: Record<string, string> = { Live: 'Live demo', Code: 'Source co
       <aside class="spec" aria-label="Project details">
         <dl>
           <div>
-            <dt class="label">Status</dt>
+            <dt class="label" data-typein>Status</dt>
             <dd>{STATUSES[data.status]}</dd>
           </div>
           <div>
-            <dt class="label">Lives on</dt>
+            <dt class="label" data-typein>Lives on</dt>
             <dd>{PLATFORMS[data.platform]}</dd>
           </div>
           {
@@ -117,7 +117,7 @@ const buttonText: Record<string, string> = { Live: 'Live demo', Code: 'Source co
             )
           }
           <div>
-            <dt class="label">Tags</dt>
+            <dt class="label" data-typein>Tags</dt>
             <dd>
               <ul class="spec__tags">
                 {data.tags.map((tag) => (

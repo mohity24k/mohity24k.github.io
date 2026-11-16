@@ -2,18 +2,31 @@
 /**
  * Styles for written content that comes from Markdown: project write-ups,
  * posts, abstracts. Reads tokens only, so it takes on whichever world it is
- * placed in. `dropcap` sets a large first letter on the opening paragraph.
+ * placed in.
+ *
+ * `dropcap` sets a large first letter on the opening paragraph. The letter
+ * is wrapped in a real element here, at build time, so the motion script can
+ * animate it without rewriting the text in the browser.
  */
 interface Props {
   dropcap?: boolean;
 }
 
 const { dropcap = false } = Astro.props;
+
+let html = await Astro.slots.render('default');
+if (dropcap) {
+  // Only when the very first paragraph opens with a plain letter or digit.
+  const start = html.indexOf('<p>');
+  const first = start === -1 ? null : html.slice(start + 3).match(/^\s*([\p{L}\p{N}])/u);
+  if (first) {
+    const at = start + 3 + first[0].length - first[1]!.length;
+    html = `${html.slice(0, at)}<span class="dropcap">${first[1]}</span>${html.slice(at + first[1]!.length)}`;
+  }
+}
 ---
 
-<div class:list={['prose', { 'prose--dropcap': dropcap }]}>
-  <slot />
-</div>
+<div class:list={['prose', { 'prose--dropcap': dropcap }]} set:html={html} />
 
 <style>
   .prose {
@@ -115,14 +128,16 @@ const { dropcap = false } = Astro.props;
   }
 
   /* A large first letter on the opening paragraph. */
-  .prose--dropcap :global(> p:first-of-type::first-letter) {
+  .prose :global(.dropcap) {
     float: inline-start;
-    margin: 0.04em 0.08em 0 0;
+    /* Two lines tall: the box must not be taller than two lines of body
+       text, or a third line would be pushed in beside it. */
+    margin: 0.035em 0.09em 0 0;
     color: var(--accent-text);
     font-family: var(--font-display);
-    font-size: 4.4em;
+    font-size: 4.25em;
     font-style: normal;
     font-weight: 500;
-    line-height: 0.82;
+    line-height: 0.7;
   }
 </style>

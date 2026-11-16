@@ -26,7 +26,7 @@ const formula = fig.formula.match(/[A-Za-z]+|\d+/g) ?? [];
       ))
     }
   </svg>
-  <figcaption class="label">
+  <figcaption class="label" data-typein>
     Fig. 1 · {fig.name}, {formula.map((part) => (/\d/.test(part) ? <sub>{part}</sub> : part))}
   </figcaption>
 </figure>

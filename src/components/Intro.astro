@@ -21,9 +21,9 @@ const socials = site.socials.filter((s) => s.url || !s.hideIfMissing);
 
     <p class="intro__line">
       {
-        site.intro.map((part) =>
+        site.intro.map((part, i) =>
           part.world ? (
-            <a class="phrase world-surface" data-world={part.world} href={WORLDS[part.world].path}>
+            <a class="phrase world-surface" data-world={part.world} href={WORLDS[part.world].path} style={`--i: ${Math.floor(i / 2)}`}>
               {part.text}
             </a>
           ) : (

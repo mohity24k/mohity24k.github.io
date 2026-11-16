@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Motion: the CSS half.
+
+   Everything here is progressive enhancement:
+     - With JavaScript off, nothing below hides anything.
+     - With "reduce motion" on, transitions are instant and nothing waits to
+       be revealed (see the media query at the end, and base.css).
+     - The JavaScript half lives in src/scripts/motion.ts (always loaded,
+       tiny) and src/scripts/motion-gsap.ts (GSAP, loaded when idle).
+   ========================================================================== */
+
+/* ── 1. Waiting for the opening animation ──────────────────────────────────
+   A few decorative pieces animate in when a page opens (the Lab figure draws
+   itself, headline numbers count up, the drop cap settles). An inline script
+   in <head> sets data-motion="pending" before first paint so those pieces
+   don't flash in their finished state first. It flips to "on" when the
+   animation code is ready, or to "off" after three seconds if it never
+   arrives, so nothing can stay hidden. */
+html[data-motion='pending'] [data-draw] :is(line, text),
+html[data-motion='pending'] [data-metric],
+html[data-motion='pending'] .dropcap {
+  visibility: hidden;
+}
+
+/* ── 2. World-to-world page transitions ────────────────────────────────────
+   Pages change through the View Transitions API. The incoming page's world
+   decides how it arrives; data-from-world (set just before the swap) tells
+   us where we came from, so moving within one world stays a quick fade. */
+
+/* The top bar holds still and re-colours in place while the page changes. */
+.topbar {
+  view-transition-name: topbar;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: var(--ease-out-quart);
+  mix-blend-mode: normal;
+}
+
+/* Into the Lab: the new sheet is laid over the old one from the left edge,
+   quick and exact. */
+html[data-world='lab']:not([data-from-world='lab'])::view-transition-old(root) {
+  animation: none;
+}
+
+html[data-world='lab']:not([data-from-world='lab'])::view-transition-new(root) {
+  animation: vt-sheet 320ms var(--ease-out-quart) both;
+}
+
+/* Into the Studio: house lights down, then the scene fades up. */
+html[data-world='studio']:not([data-from-world='studio'])::view-transition {
+  background-color: oklch(12% 0.024 292);
+}
+
+html[data-world='studio']:not([data-from-world='studio'])::view-transition-old(root) {
+  animation: vt-out 260ms ease-in both;
+}
+
+html[data-world='studio']:not([data-from-world='studio'])::view-transition-new(root) {
+  animation: vt-scene 640ms var(--ease-out-expo) 200ms both;
+}
+
+/* Inside the Studio: a slower scene-to-scene dissolve. */
+html[data-world='studio'][data-from-world='studio']::view-transition-old(root),
+html[data-world='studio'][data-from-world='studio']::view-transition-new(root) {
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-in-out);
+}
+
+/* Into the Journal: the page turns up softly from below. */
+html[data-world='journal']:not([data-from-world='journal'])::view-transition-old(root) {
+  animation: vt-out 240ms var(--ease-in-out) both;
+}
+
+html[data-world='journal']:not([data-from-world='journal'])::view-transition-new(root) {
+  animation: vt-turn 460ms var(--ease-in-out) 80ms both;
+}
+
+@keyframes vt-sheet {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes vt-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-scene {
+  from {
+    opacity: 0;
+    scale: 1.03;
+  }
+}
+
+@keyframes vt-turn {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+
+/* ── 3. Home: the three painted phrases ring once, in order ──────────────── */
+.intro .phrase {
+  animation: phrase-ring 800ms var(--ease-out-quart) both;
+  animation-delay: calc(var(--i, 0) * 160ms + 250ms);
+}
+
+@keyframes phrase-ring {
+  from {
+    box-shadow: 0 0 0 0 var(--accent);
+  }
+  to {
+    box-shadow: 0 0 0 0.55em color-mix(in oklch, var(--accent) 0%, transparent);
+  }
+}
+
+/* ── 4. Journal: reading progress ────────────────────────────────────────── */
+.progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: var(--z-topbar);
+  height: 3px;
+  background-color: var(--accent);
+  scale: var(--progress, 0) 1;
+  transform-origin: left;
+  pointer-events: none;
+}
+
+/* ── 5. Studio: gallery pieces tilt towards the pointer ──────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  .gallery .piece__open {
+    will-change: transform;
+  }
+
+  .gallery .piece__open:hover {
+    border-color: var(--accent);
+    box-shadow:
+      0 0 0 1px var(--accent),
+      0 24px 60px -18px oklch(73% 0.155 300 / 0.6);
+  }
+}
+
+/* ── Reduced motion: page changes are instant; nothing rings or tilts ────── */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
