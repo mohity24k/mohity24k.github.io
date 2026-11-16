@@ -7,12 +7,22 @@ import Base from '../layouts/Base.astro';
 import CurrentlyBuilding from '../components/CurrentlyBuilding.astro';
 import Intro from '../components/Intro.astro';
 import WorkFeed from '../components/WorkFeed.astro';
+import { site } from '../data/site';
 import { countTags, getFeed } from '../lib/feed';
 
 const items = await getFeed();
 ---
 
-<Base>
+<Base
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: site.name,
+    url: site.url,
+    description: site.tagline,
+    sameAs: site.socials.flatMap((s) => (s.url ? [s.url] : [])),
+  }}
+>
   <Intro />
   <CurrentlyBuilding />
   <WorkFeed items={items} tags={countTags(items)} total={items.length} mode="inline" />

@@ -41,7 +41,23 @@ const bibtex = [
   .join('\n');
 ---
 
-<Base title={data.title} world="lab" description={data.summary}>
+<Base
+  title={data.title}
+  world="lab"
+  description={data.summary}
+  image={data.cover}
+  imageAlt={data.coverAlt}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'ScholarlyArticle',
+    headline: data.title,
+    description: data.summary,
+    author: data.authors.map((name) => ({ '@type': 'Person', name })),
+    datePublished: String(data.year),
+    isPartOf: { '@type': 'Periodical', name: data.venue },
+    ...(data.doi ? { sameAs: `https://doi.org/${data.doi}` } : {}),
+  }}
+>
   <article class="wrap pub">
     <a class="back ui" href="/lab/#publications">
       <Icon name="back" />
