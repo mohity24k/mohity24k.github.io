@@ -85,7 +85,9 @@ const topics = ['Opportunity', 'Collaboration', 'Just saying hi'];
     !live && (
       <noscript>
         {/* No key and no JavaScript: nothing could send, so show only the email link. */}
-        <style>{`.form[data-contact='mailto'] > :not(.form__fallback) { display: none; }`}</style>
+        <style is:inline>
+          .form[data-contact='mailto'] > :not(.form__fallback) { display: none; }
+        </style>
       </noscript>
     )
   }
