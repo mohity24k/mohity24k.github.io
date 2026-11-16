@@ -1,0 +1,68 @@
+---
+/**
+ * Filter chips + "Selected work" + everything else, newest first.
+ * With `mode="inline"` (the home page) the chips filter in place; see
+ * FilterChips.astro for how filtering degrades without JavaScript.
+ */
+import CardGrid from './CardGrid.astro';
+import FilterChips from './FilterChips.astro';
+import { TAGS, type Tag } from '../data/taxonomy';
+import { splitFeatured, type FeedItem, type TagCount } from '../lib/feed';
+
+interface Props {
+  /** The items to show (already filtered, on a tag page). */
+  items: FeedItem[];
+  /** Chips to draw, with counts taken across the whole site. */
+  tags: TagCount[];
+  /** Total number of items on the site, for the "All" chip. */
+  total: number;
+  /** The tag this page is filtered to, if any. */
+  active?: Tag;
+  mode?: 'inline' | 'links';
+}
+
+const { items, tags, total, active, mode = 'links' } = Astro.props;
+const { featured, rest } = splitFeatured(items);
+---
+
+<section class="feed wrap" id="work" data-feed={mode}>
+  <FilterChips tags={tags} total={total} allHref="/#work" active={active} label="Filter work by interest" />
+
+  {
+    featured.length > 0 && (
+      <div class="feed__group" data-group>
+        <h2>Selected work</h2>
+        <CardGrid items={featured} size="feature" />
+      </div>
+    )
+  }
+
+  {
+    rest.length > 0 && (
+      <div class="feed__group" data-group>
+        <h2>{featured.length > 0 ? 'Latest' : active ? `Tagged ${TAGS[active]}` : 'Latest'}</h2>
+        <CardGrid items={rest} />
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .feed {
+    padding-block-start: var(--space-2xl);
+    /* Keeps the chips in view when a link jumps to #work */
+    scroll-margin-top: var(--space-md);
+  }
+
+  .feed__group {
+    margin-block-start: var(--space-2xl);
+  }
+
+  .feed__group[hidden] {
+    display: none;
+  }
+
+  .feed__group h2 {
+    margin-block-end: var(--space-lg);
+  }
+</style>

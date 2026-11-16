@@ -1,0 +1,81 @@
+---
+/**
+ * Mohit's portrait.
+ *
+ * TODO(mohit): add your photo as src/assets/portrait.jpg (or .png / .webp /
+ * .avif). It is picked up automatically, with no code change. Until then this
+ * draws a stand-in: the three worlds as paint chips.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { site } from '../data/site';
+
+interface Props {
+  /** Rendered width in CSS pixels at its largest. */
+  size?: number;
+}
+
+const { size = 112 } = Astro.props;
+
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/portrait.{jpg,jpeg,png,webp,avif}', { eager: true });
+const photo = Object.values(files)[0]?.default;
+---
+
+{
+  photo ? (
+    <div class="portrait portrait--photo">
+      <Image
+        src={photo}
+        alt={`Portrait of ${site.name}`}
+        width={size * 2}
+        height={Math.round(size * 2.5)}
+        fit="cover"
+        loading="eager"
+      />
+    </div>
+  ) : (
+    <div class="portrait portrait--stand-in" role="img" aria-label="Portrait coming soon">
+      <span class="world-surface" data-world="lab" />
+      <span class="world-surface" data-world="studio" />
+      <span class="world-surface" data-world="journal" />
+    </div>
+  )
+}
+
+<style>
+  .portrait {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border: var(--border-w) solid var(--line-strong);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .portrait--photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .portrait--stand-in {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .portrait--stand-in span {
+    display: grid;
+    place-items: center;
+  }
+
+  .portrait--stand-in span + span {
+    border-inline-start: var(--border-w) solid var(--line-strong);
+  }
+
+  .portrait--stand-in span::after {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--accent);
+  }
+</style>

@@ -64,6 +64,10 @@ const sections = [WORLDS.lab, WORLDS.studio, WORLDS.journal, { label: 'About', p
 
   <div class="wrap footer__base">
     <p>© {year} {site.name}</p>
+    <a href="/rss.xml">
+      <Icon name="rss" size={14} />
+      <span>Journal RSS</span>
+    </a>
   </div>
 </footer>
 
@@ -121,9 +125,22 @@ const sections = [WORLDS.lab, WORLDS.studio, WORLDS.journal, { label: 'About', p
   }
 
   .footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs) var(--space-lg);
     padding-block: var(--space-md);
     border-block-start: var(--border-w) solid var(--line);
     font-size: var(--step--2);
+  }
+
+  .footer__base a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: 2rem;
+    color: inherit;
   }
 
   @media (max-width: 60rem) {

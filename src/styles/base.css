@@ -43,9 +43,10 @@ body::before {
 /* Any element carrying data-world re-reads colour and type from its own
    world's tokens. This is the whole theming mechanism. <html> is left out on
    purpose: its font-size must stay at the browser default so 1rem means the
-   same thing in every world. <body> picks the page's world up by inheritance. */
+   same thing in every world. <body> picks the page's world up by inheritance.
+   :where() keeps specificity at zero so any component class can override. */
 body,
-[data-world]:not(html) {
+:where([data-world]:not(html)) {
   color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--body-size);
@@ -309,4 +310,31 @@ main {
   background-color: var(--bg);
   background-image: var(--texture), var(--ambient);
   background-size: var(--texture-size), 100% 100%;
+}
+
+/* A phrase painted in the world it names: that world's ground, type and
+   accent, inline in a sentence. Usually a link into that world. */
+.phrase {
+  padding: 0.08em 0.32em;
+  border: var(--border-w) solid var(--line-strong);
+  border-radius: var(--radius-md);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.86em;
+  font-style: var(--display-style);
+  font-stretch: var(--display-stretch);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: inherit;
+  text-decoration: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out-quart),
+    box-shadow var(--dur-fast) var(--ease-out-quart);
+}
+
+a.phrase:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }

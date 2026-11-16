@@ -1,0 +1,320 @@
+---
+/**
+ * A project's page, in the project's own world:
+ *   title · summary · big outbound buttons · cover · headline numbers ·
+ *   the write-up (Problem → What I built → Results → Stack) beside a
+ *   details panel · optional gallery · devlogs about it.
+ */
+import { Image } from 'astro:assets';
+import { getEntries, render, type CollectionEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import CardGrid from './CardGrid.astro';
+import CoverArt from './CoverArt.astro';
+import Gallery from './Gallery.astro';
+import Icon from './Icon.astro';
+import Lightbox from './Lightbox.astro';
+import Prose from './Prose.astro';
+import { PLATFORMS, STATUSES, TAGS, WORLDS } from '../data/taxonomy';
+import { getItem, getPostsAbout, isoDate } from '../lib/feed';
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const item = (await getItem(`projects/${entry.id}`))!;
+const devlogs = await getPostsAbout(entry.id);
+const pieces = await getEntries(data.gallery);
+const { Content } = await render(entry);
+
+const buttonText: Record<string, string> = { Live: 'Live demo', Code: 'Source code', Paper: 'Read the paper' };
+---
+
+<Base title={data.title} world={data.world} description={data.summary}>
+  <article class="project">
+    <header class="wrap project__head">
+      <div class="project__intro">
+        <a class="back ui" href={WORLDS[data.world].path}>
+          <Icon name="back" />
+          <span>{WORLDS[data.world].label}</span>
+        </a>
+        <h1>{data.title}</h1>
+        <p class="project__summary">{data.summary}</p>
+
+        {
+          item.links.length > 0 && (
+            <ul class="project__actions">
+              {item.links.map(({ label, href }, i) => (
+                <li>
+                  {href ? (
+                    <a class:list={['btn', 'btn--big', { 'btn--quiet': i > 0 }]} href={href} target="_blank" rel="noopener">
+                      <span>{buttonText[label] ?? label}</span>
+                      <Icon name="external" />
+                      <span class="sr-only">(opens in a new tab)</span>
+                    </a>
+                  ) : (
+                    <span class="soon soon--big">
+                      {buttonText[label] ?? label}
+                      <span aria-hidden="true">·</span>
+                      coming soon
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+
+      <div class="project__cover" style={`view-transition-name: cover-${item.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`}>
+        {
+          data.cover ? (
+            <Image src={data.cover} alt={data.coverAlt ?? ''} widths={[480, 720, 960, 1280]} sizes="(min-width: 60rem) 34rem, 100vw" loading="eager" />
+          ) : (
+            <CoverArt motif={item.art} seed={item.key} text={item.artText} />
+          )
+        }
+      </div>
+    </header>
+
+    {
+      data.metrics.length > 0 && (
+        <dl class="wrap project__metrics" aria-label="Results at a glance">
+          {data.metrics.map((metric) => (
+            <div>
+              <dt class="label" data-typein>{metric.label}</dt>
+              <dd data-metric>{metric.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+
+    <div class="wrap project__grid">
+      <Prose>
+        <Content />
+      </Prose>
+
+      <aside class="spec" aria-label="Project details">
+        <dl>
+          <div>
+            <dt class="label" data-typein>Status</dt>
+            <dd>{STATUSES[data.status]}</dd>
+          </div>
+          <div>
+            <dt class="label" data-typein>Lives on</dt>
+            <dd>{PLATFORMS[data.platform]}</dd>
+          </div>
+          {
+            item.dateText && (
+              <div>
+                <dt class="label">{data.status === 'completed' ? 'Completed' : 'Updated'}</dt>
+                <dd>
+                  <time datetime={isoDate(data.date)}>{item.dateText}</time>
+                </dd>
+              </div>
+            )
+          }
+          <div>
+            <dt class="label" data-typein>Tags</dt>
+            <dd>
+              <ul class="spec__tags">
+                {data.tags.map((tag) => (
+                  <li>
+                    <a href={`/tags/${tag}/`}>{TAGS[tag]}</a>
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+
+    {
+      pieces.length > 0 && (
+        <section class="wrap project__section">
+          <h2>Gallery</h2>
+          <Gallery pieces={pieces} />
+          <Lightbox />
+        </section>
+      )
+    }
+
+    {
+      devlogs.length > 0 && (
+        <section class="wrap project__section">
+          <h2>Devlogs</h2>
+          <CardGrid items={devlogs} size={devlogs.length < 3 ? 'wide' : 'standard'} />
+        </section>
+      )
+    }
+  </article>
+</Base>
+
+<style>
+  /* Title and actions on the left, the cover on the right. */
+  .project__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+    align-items: center;
+    gap: var(--space-xl) var(--space-3xl);
+    padding-block-start: var(--space-xl);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    color: var(--ink-soft);
+    font-weight: 550;
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--ink);
+  }
+
+  .project__head h1 {
+    max-width: 18ch;
+    margin-block-start: var(--space-md);
+    font-size: var(--step-5);
+  }
+
+  .project__summary {
+    max-width: var(--measure);
+    margin-block-start: var(--space-md);
+    color: var(--ink-soft);
+    font-size: var(--step-1);
+  }
+
+  .project__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .btn--big {
+    min-height: 3.25rem;
+    padding-inline: var(--space-lg);
+    font-size: var(--step-0);
+  }
+
+  .soon--big {
+    min-height: 3.25rem;
+    padding-inline: var(--space-lg);
+    font-size: var(--step--1);
+  }
+
+  .project__cover {
+    overflow: hidden;
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+  }
+
+  .project__cover :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .project__metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--space-lg) var(--grid-gap);
+    margin-block: var(--space-2xl) 0;
+    padding-block: var(--space-xl);
+    border-block: var(--border-w) solid var(--line);
+  }
+
+  .project__metrics div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: var(--space-2xs);
+  }
+
+  .project__metrics dd {
+    margin: 0;
+    color: var(--accent-text);
+    font-family: var(--font-data);
+    font-stretch: var(--data-stretch);
+    font-size: var(--step-4);
+    font-style: normal;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .project__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    align-items: start;
+    gap: var(--space-2xl) var(--space-3xl);
+    margin-block-start: var(--space-2xl);
+  }
+
+  .spec {
+    position: sticky;
+    inset-block-start: var(--space-xl);
+    padding: var(--space-lg);
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-raised);
+  }
+
+  .spec dl {
+    display: grid;
+    gap: var(--space-md);
+    margin: 0;
+  }
+
+  .spec dd {
+    margin: var(--space-3xs) 0 0;
+    font-weight: 600;
+  }
+
+  .spec__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project__section {
+    margin-block-start: var(--space-3xl);
+  }
+
+  .project__section h2 {
+    margin-block-end: var(--space-lg);
+  }
+
+  @media (max-width: 56rem) {
+    .project__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .spec {
+      position: static;
+      order: -1;
+    }
+
+    .spec dl {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .project__head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

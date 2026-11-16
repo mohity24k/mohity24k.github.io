@@ -1,0 +1,29 @@
+---
+/**
+ * A publication as a formatted reference:
+ *   Gedam, M. (2023). Title. Venue, 70(1), pages.
+ * With `link`, the title links to the publication's page on this site.
+ */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'publications'>;
+  link?: boolean;
+}
+
+const { entry, link = false } = Astro.props;
+const { data } = entry;
+const issue = [data.volume, data.issue && `(${data.issue})`].filter(Boolean).join('');
+---
+
+<span class="cite">
+  {data.authors.join(', ')} ({data.year}).{' '}
+  {link ? <a href={`/lab/publications/${entry.id}/`}>{data.title}</a> : <span class="cite__title">{data.title}</span>}.{' '}
+  <em>{data.venue}</em>{issue && `, ${issue}`}{data.pages && `, ${data.pages}`}.
+</span>
+
+<style>
+  .cite__title {
+    font-weight: 600;
+  }
+</style>

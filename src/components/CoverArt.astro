@@ -1,0 +1,280 @@
+---
+/**
+ * Generated cover artwork, drawn in the surrounding world's tokens. Used
+ * wherever an entry has no `cover` image yet. Decorative: the card's title
+ * carries the meaning, so the artwork is hidden from assistive technology.
+ *
+ * The same `seed` always draws the same picture.
+ */
+import { ART_H, ART_W, molecule, network, scene, waveform } from '../lib/art';
+import type { ArtMotif } from '../lib/feed';
+import { seeded } from '../lib/seed';
+
+interface Props {
+  motif: ArtMotif;
+  /** Any stable string, e.g. the entry's key. */
+  seed: string;
+  /** Words for the typographic motifs (citation, monogram). */
+  text?: { big: string; small: string[] };
+}
+
+const { motif, seed, text = { big: '', small: [] } } = Astro.props;
+const rng = seeded(seed);
+// SVG ids are document-global, so make this instance's ids unique.
+const uid = `art-${seed.replace(/[^a-z0-9]/gi, '-')}`;
+
+const mol = motif === 'molecule' ? molecule(rng) : null;
+const net = motif === 'network' ? network(rng) : null;
+const wave = motif === 'waveform' ? waveform(rng) : null;
+const night = motif === 'scene' ? scene(rng) : null;
+const small = text.small.filter(Boolean);
+---
+
+<div class:list={['art', `art--${motif}`]} aria-hidden="true">
+  <svg viewBox={`0 0 ${ART_W} ${ART_H}`} preserveAspectRatio="xMidYMid slice" focusable="false">
+    {/* Lab motifs sit on the notebook page: graph paper comes from CSS, the red margin rule from here. */}
+    {(mol || net || wave || motif === 'citation') && <line class="margin" x1="46" y1="0" x2="46" y2={ART_H} />}
+
+    {
+      mol && (
+        <g class="ink">
+          {mol.lines.map((l) => (
+            <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />
+          ))}
+          {mol.labels.map((l) => (
+            <text x={l.x} y={l.y} text-anchor={l.anchor} class:list={['atom', { 'atom--h': l.small }]}>
+              {l.text}
+            </text>
+          ))}
+        </g>
+      )
+    }
+
+    {
+      net && (
+        <g class="ink">
+          <g class="edges">
+            {net.edges.map((l) => (
+              <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />
+            ))}
+          </g>
+          {net.nodes.map((n) => (
+            <circle cx={n.x} cy={n.y} r="6.5" class:list={['node', { 'node--on': n.on }]} />
+          ))}
+        </g>
+      )
+    }
+
+    {
+      wave && (
+        <g class="ink">
+          <line class="axis" x1="60" y1={ART_H / 2} x2="390" y2={ART_H / 2} />
+          <g class="bars">
+            {wave.map((l) => (
+              <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />
+            ))}
+          </g>
+        </g>
+      )
+    }
+
+    {
+      motif === 'citation' && (
+        <g>
+          <text class="cite-year" x="66" y="150">
+            {text.big}
+          </text>
+          {small.map((line, i) => (
+            <text class="cite-line" x="68" y={184 + i * 20}>
+              {line}
+            </text>
+          ))}
+        </g>
+      )
+    }
+
+    {
+      night && (
+        <g>
+          <defs>
+            <linearGradient id={`${uid}-sky`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" class="sky-top" />
+              <stop offset="1" class="sky-low" />
+            </linearGradient>
+            <filter id={`${uid}-glow`} x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="16" />
+            </filter>
+          </defs>
+          <rect width={ART_W} height={ART_H} fill={`url(#${uid}-sky)`} />
+          <g class="stars" data-depth="0.1">
+            {night.stars.map((s) => (
+              <circle cx={s.x} cy={s.y} r={s.r} opacity={s.o} />
+            ))}
+          </g>
+          <g data-depth="0.2">
+            <circle class="disc-glow" cx={night.disc.x} cy={night.disc.y} r={night.disc.r * 1.25} filter={`url(#${uid}-glow)`} />
+            <circle class="disc" cx={night.disc.x} cy={night.disc.y} r={night.disc.r} />
+          </g>
+          {night.ridges.map((d, i) => (
+            <path class={`ridge ridge--${i}`} d={d} data-depth={0.4 + i * 0.3} />
+          ))}
+        </g>
+      )
+    }
+
+    {
+      motif === 'monogram' && (
+        <g>
+          <rect class="paper" width={ART_W} height={ART_H} />
+          <text class="mono-letter" x="200" y="206" text-anchor="middle">
+            {text.big}
+          </text>
+          <line class="rule rule--thick" x1="24" y1="224" x2="376" y2="224" />
+          <line class="rule" x1="24" y1="229" x2="376" y2="229" />
+        </g>
+      )
+    }
+  </svg>
+</div>
+
+<style>
+  .art {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: var(--bg);
+  }
+
+  .art svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── Lab: ink on graph paper ── */
+  .art--molecule,
+  .art--network,
+  .art--waveform,
+  .art--citation {
+    background-image: var(--texture);
+    background-size: var(--texture-size);
+  }
+
+  .margin {
+    stroke: var(--accent-2);
+    stroke-width: 1;
+    opacity: 0.55;
+  }
+
+  .ink {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .atom {
+    fill: var(--accent);
+    stroke: none;
+    font-family: var(--family-sans);
+    font-size: 15px;
+    font-weight: 650;
+    dominant-baseline: central;
+  }
+
+  .atom--h {
+    font-size: 12px;
+  }
+
+  .edges {
+    stroke-width: 1;
+    opacity: 0.32;
+  }
+
+  .node {
+    fill: var(--bg-raised);
+  }
+
+  .node--on {
+    fill: var(--accent);
+  }
+
+  .axis {
+    stroke-width: 1;
+    opacity: 0.4;
+  }
+
+  .bars {
+    stroke-width: 3;
+  }
+
+  .cite-year {
+    fill: var(--accent);
+    font-family: var(--family-sans);
+    font-size: 96px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+
+  .cite-line {
+    fill: var(--ink-soft);
+    font-family: var(--family-mono);
+    font-stretch: 87.5%;
+    font-size: 11.5px;
+  }
+
+  /* ── Studio: night scene ── */
+  .sky-top {
+    stop-color: var(--bg-sunken);
+  }
+
+  .sky-low {
+    stop-color: var(--accent-soft);
+  }
+
+  .stars {
+    fill: var(--ink);
+  }
+
+  .disc {
+    fill: var(--accent-2);
+  }
+
+  .disc-glow {
+    fill: var(--accent);
+    opacity: 0.75;
+  }
+
+  .ridge--0 {
+    fill: color-mix(in oklch, var(--accent-soft) 70%, var(--accent));
+  }
+
+  .ridge--1 {
+    fill: color-mix(in oklch, var(--accent-soft) 55%, var(--bg));
+  }
+
+  .ridge--2 {
+    fill: var(--bg-sunken);
+  }
+
+  /* ── Journal: typographic cover ── */
+  .paper {
+    fill: var(--bg-sunken);
+  }
+
+  .mono-letter {
+    fill: var(--accent);
+    font-family: var(--family-serif);
+    font-size: 236px;
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  .rule {
+    stroke: var(--ink);
+    stroke-width: 0.75;
+  }
+
+  .rule--thick {
+    stroke-width: 2.5;
+  }
+</style>

@@ -1,0 +1,52 @@
+---
+/**
+ * A responsive grid of cards. Each cell carries its tags so the feed filter
+ * can show and hide it.
+ */
+import Card from './Card.astro';
+import type { FeedItem } from '../lib/feed';
+
+interface Props {
+  items: FeedItem[];
+  size?: 'feature' | 'standard' | 'wide';
+  heading?: 'h2' | 'h3';
+}
+
+const { items, size = 'standard', heading = 'h3' } = Astro.props;
+---
+
+<ul class="grid" data-size={size}>
+  {
+    items.map((item) => (
+      <li data-tags={item.tags.join(' ')} style={`view-transition-name: card-${item.key.replace(/[^a-zA-Z0-9_-]/g, '-')}`}>
+        <Card item={item} size={size} heading={heading} />
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--card-min)), 1fr));
+    gap: var(--grid-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Three across at most, so cards never get narrower than their content wants. */
+  @media (min-width: 64rem) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .grid[data-size='wide'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .grid > li[hidden] {
+    display: none;
+  }
+</style>

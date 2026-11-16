@@ -1,32 +1,344 @@
 ---
+/**
+ * About: who Mohit is, what he knows, where he studies, life outside the
+ * work, and how to reach him. Every fact comes from src/data/about.ts and
+ * src/data/site.ts.
+ */
 import Base from '../layouts/Base.astro';
+import ContactForm from '../components/ContactForm.astro';
+import Icon from '../components/Icon.astro';
+import LifeStrip from '../components/LifeStrip.astro';
+import Portrait from '../components/Portrait.astro';
+import { activities, bio, certifications, education, exploring, skills } from '../data/about';
+import { site } from '../data/site';
+
+const [opening, ...rest] = bio;
+const socials = site.socials.filter((s) => s.url || !s.hideIfMissing);
 ---
 
-<Base title="About" world="neutral">
-  <div class="wrap page">
-    <h1>About</h1>
-    <p class="lede">
-      Final-year B.Tech student in Pharmaceutical Chemistry & Technology at ICT Mumbai, with a minor in AI/ML.
-    </p>
-    <p class="ui note" id="contact">
-      Scaffold view. The bio, skills, education, photo strip, contact form and CV download arrive in step 4.
-    </p>
+<Base title="About" description={opening}>
+  <header class="wrap top">
+    <div class="top__portrait">
+      <Portrait size={300} />
+    </div>
+    <div class="top__text">
+      <h1>About</h1>
+      <p class="top__opening">{opening}</p>
+      {rest.map((paragraph) => <p>{paragraph}</p>)}
+      <div class="top__actions">
+        <a class="btn" href={site.cvPath} download>
+          <span>Download CV</span>
+          <Icon name="download" />
+        </a>
+        <a class="btn btn--quiet" href="#contact">
+          <span>Get in touch</span>
+          <Icon name="arrow" />
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <section class="wrap section">
+    <h2>Skills</h2>
+    <dl class="skills">
+      {
+        skills.map((group) => (
+          <div>
+            <dt>{group.title}</dt>
+            <dd>
+              <ul>
+                {group.skills.map((skill) => (
+                  <li>{skill}</li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <div class="wrap section facts">
+    <section>
+      <h2>Education</h2>
+      <ul class="rows">
+        {
+          education.map((item) => (
+            <li>
+              <span class="rows__main">{item.degree}</span>
+              <span>{item.school}</span>
+              {item.detail && <span>{item.detail}</span>}
+              <span class="rows__meta">{item.date}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>{certifications.length === 1 ? 'Certification' : 'Certifications'}</h2>
+      <ul class="rows">
+        {
+          certifications.map((item) => (
+            <li>
+              <span class="rows__main">{item.url ? <a href={item.url}>{item.title}</a> : item.title}</span>
+              <span>{item.issuer}</span>
+              <span class="rows__meta">{item.date}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>Activities</h2>
+      <ul class="rows">
+        {
+          activities.map((item) => (
+            <li>
+              <span class="rows__main">{item.role}</span>
+              {item.where && <span>{item.where}</span>}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
   </div>
+
+  <section class="wrap section">
+    <h2>Away from the desk</h2>
+    <LifeStrip />
+    {
+      exploring.length > 0 && (
+        <p class="exploring">
+          Currently exploring{' '}
+          {exploring.map((topic) => (
+            <span class="phrase world-surface" data-world="studio">
+              {topic}
+            </span>
+          ))}
+        </p>
+      )
+    }
+  </section>
+
+  <section class="wrap section contact" id="contact">
+    <div class="contact__intro">
+      <h2>Get in touch</h2>
+      <p>For opportunities, collaborations, or just to say hi.</p>
+      <ul class="contact__links ui">
+        <li>
+          <a href={`mailto:${site.email}`}>
+            <Icon name="mail" />
+            <span>{site.email}</span>
+          </a>
+        </li>
+        {
+          socials.map(({ label, url }) => (
+            <li>
+              {url ? (
+                <a href={url} target="_blank" rel="noopener me">
+                  <Icon name="external" />
+                  <span>{label}</span>
+                  <span class="sr-only">(opens in a new tab)</span>
+                </a>
+              ) : (
+                <span class="contact__pending">
+                  <span>{label}</span>
+                  <span class="soon">Coming soon</span>
+                </span>
+              )}
+            </li>
+          ))
+        }
+        <li>
+          <a href={site.cvPath} download>
+            <Icon name="download" />
+            <span>CV (PDF)</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <ContactForm />
+  </section>
 </Base>
 
 <style>
-  .page {
+  .top {
+    display: grid;
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-xl) var(--space-3xl);
     padding-block-start: var(--space-3xl);
   }
 
-  .lede {
+  .top__text {
     max-width: var(--measure);
-    margin-block: var(--space-md) var(--space-2xl);
-    font-size: var(--step-1);
+  }
+
+  .top__text p {
+    margin-block-start: var(--space-md);
     color: var(--ink-soft);
   }
 
-  .note {
+  .top__text .top__opening {
+    margin-block-start: var(--space-lg);
+    color: var(--ink);
+    font-size: var(--step-2);
+    letter-spacing: -0.012em;
+    line-height: 1.35;
+  }
+
+  .top__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-xl);
+  }
+
+  .section {
+    margin-block-start: var(--space-3xl);
+    scroll-margin-top: var(--space-lg);
+  }
+
+  .section h2 {
+    margin-block-end: var(--space-lg);
+  }
+
+  /* Skills: six groups, each a heading with its tools as tags. */
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-xl) var(--grid-gap);
+    margin: 0;
+  }
+
+  .skills dt {
+    padding-block-end: var(--space-xs);
+    border-block-end: var(--border-w) solid var(--line);
+    font-weight: 650;
+  }
+
+  .skills dd {
+    margin: var(--space-sm) 0 0;
+  }
+
+  .skills ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .skills li {
+    padding: 0.25rem 0.7rem;
+    border: var(--border-w) solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    background-color: var(--bg-raised);
+    font-size: var(--step--1);
+    font-weight: 550;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-2xl) var(--grid-gap);
+  }
+
+  .rows {
+    display: grid;
+    gap: var(--space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rows li {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-block-end: var(--space-md);
+    border-block-end: var(--border-w) solid var(--line);
     color: var(--ink-soft);
+  }
+
+  .rows__main {
+    color: var(--ink);
+    font-weight: 650;
+  }
+
+  .rows__meta {
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .exploring {
+    margin-block-start: var(--space-xl);
+    color: var(--ink-soft);
+    font-size: var(--step-2);
+    line-height: 1.5;
+  }
+
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-xl) var(--space-3xl);
+    padding-block-start: var(--space-2xl);
+    border-block-start: var(--border-w) solid var(--line-strong);
+  }
+
+  .contact h2 {
+    margin-block-end: var(--space-sm);
+  }
+
+  .contact__intro p {
+    color: var(--ink-soft);
+  }
+
+  .contact__links {
+    display: grid;
+    gap: var(--space-2xs);
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contact__links a,
+  .contact__pending {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.5rem;
+    font-weight: 550;
+  }
+
+  .contact__links a {
+    color: var(--ink);
+    text-decoration-color: var(--line-strong);
+  }
+
+  .contact__links a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .contact__pending {
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 52rem) {
+    .top {
+      grid-template-columns: minmax(0, 1fr);
+      padding-block-start: var(--space-xl);
+    }
+
+    .top__portrait {
+      width: 9rem;
+    }
+
+    .contact {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

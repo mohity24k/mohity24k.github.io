@@ -1,0 +1,202 @@
+---
+/**
+ * A masonry grid of gallery pieces. Each has a caption with the model,
+ * workflow and purpose behind it, and opens in the Lightbox (add
+ * <Lightbox /> once to the page).
+ *
+ * Real pieces are labelled "AI-generated". A piece still marked as a
+ * placeholder is labelled "Stand-in" instead, because it is not.
+ */
+import { getImage, Image } from 'astro:assets';
+import { getEntry, type CollectionEntry } from 'astro:content';
+import Icon from './Icon.astro';
+
+interface Props {
+  pieces: CollectionEntry<'gallery'>[];
+}
+
+const { pieces } = Astro.props;
+
+const slides = await Promise.all(
+  pieces.map(async ({ id, data }) => {
+    const still = (data.image ?? data.poster)!;
+    const full = await getImage({ src: still, width: Math.min(still.width, 2000) });
+    const post = data.relatedPost ? await getEntry(data.relatedPost) : undefined;
+    return {
+      id,
+      still,
+      full,
+      video: data.video,
+      alt: data.alt,
+      caption: data.caption,
+      facts: [
+        ['Model', data.model],
+        ['Workflow', data.workflow],
+        ['For', data.purpose],
+      ] as const,
+      standIn: data.placeholder.length > 0,
+      post: post ? { title: post.data.title, href: `/journal/${post.id}/` } : null,
+    };
+  }),
+);
+---
+
+<ul class="gallery">
+  {
+    slides.map((piece) => (
+      <li>
+        <figure class="piece">
+          <a class="piece__open" href={piece.video ?? piece.full.src} data-lightbox aria-label={`View larger: ${piece.alt}`}>
+            <Image
+              src={piece.still}
+              alt={piece.alt}
+              widths={[400, 640, 960]}
+              sizes="(min-width: 64rem) 24rem, (min-width: 40rem) 50vw, 100vw"
+            />
+            {piece.video && (
+              <span class="piece__play">
+                <Icon name="play" size={20} />
+              </span>
+            )}
+          </a>
+          <figcaption>
+            <p class="piece__caption">{piece.caption}</p>
+            <dl class="piece__facts ui">
+              {piece.facts.map(([term, value]) => (
+                <div>
+                  <dt>{term}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p class="piece__foot ui">
+              <span class="piece__flag">{piece.standIn ? 'Stand-in' : 'AI-generated'}</span>
+              {piece.post && <a href={piece.post.href}>Read the devlog</a>}
+            </p>
+          </figcaption>
+        </figure>
+
+        <template data-slide>
+          <figure>
+            {piece.video ? (
+              <video src={piece.video} poster={piece.full.src} controls loop muted playsinline autoplay />
+            ) : (
+              <img src={piece.full.src} alt={piece.alt} width={piece.full.attributes.width} height={piece.full.attributes.height} />
+            )}
+            <figcaption>
+              <p class="piece__caption">{piece.caption}</p>
+              <dl class="piece__facts ui">
+                {piece.facts.map(([term, value]) => (
+                  <div>
+                    <dt>{term}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p class="piece__foot ui">
+                <span class="piece__flag">{piece.standIn ? 'Stand-in' : 'AI-generated'}</span>
+                {piece.post && <a href={piece.post.href}>Read the devlog</a>}
+              </p>
+            </figcaption>
+          </figure>
+        </template>
+      </li>
+    ))
+  }
+</ul>
+
+<style is:global>
+  /* Global on purpose: the same caption markup is cloned into the lightbox. */
+  .gallery {
+    columns: 3 18rem;
+    column-gap: var(--grid-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gallery > li {
+    break-inside: avoid;
+    margin-block-end: var(--grid-gap);
+  }
+
+  .piece__open {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+    transition:
+      border-color var(--dur-world) var(--ease-world),
+      box-shadow var(--dur-world) var(--ease-world);
+  }
+
+  .piece__open:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .piece__open img {
+    width: 100%;
+  }
+
+  .piece__play {
+    position: absolute;
+    inset-block-end: var(--space-sm);
+    inset-inline-start: var(--space-sm);
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--bg);
+    color: var(--ink);
+  }
+
+  .piece figcaption {
+    padding-block-start: var(--space-sm);
+  }
+
+  .piece__caption {
+    color: var(--ink);
+  }
+
+  .piece__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-md);
+    margin: var(--space-xs) 0 0;
+  }
+
+  .piece__facts div {
+    display: flex;
+    gap: 0.5em;
+  }
+
+  .piece__facts dt {
+    color: var(--ink-soft);
+  }
+
+  .piece__facts dd {
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .piece__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs) var(--space-md);
+    margin-block-start: var(--space-sm);
+  }
+
+  .piece__flag {
+    padding: 0.2rem 0.55rem;
+    border: var(--border-w) solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    color: var(--ink);
+    font-size: var(--step--2);
+    font-weight: 600;
+  }
+</style>

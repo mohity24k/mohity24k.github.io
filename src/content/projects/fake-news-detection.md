@@ -17,6 +17,10 @@ featuredOrder: 1
 #   date     → the real completion date
 #   cover    → add `cover: ./fake-news-detection.png` (and `coverAlt`)
 #   codeUrl  → add `codeUrl: https://github.com/...`
+# TODO(mohit): the write-up below states only what is on your CV. To finish it:
+#   - One or two sentences on the dataset and why this problem interested you.
+#   - How the two branches are fused, how it was trained.
+#   - Add the rest of the stack (framework, libraries, training hardware).
 placeholder: [date, cover, codeUrl, body]
 ---
 
@@ -24,13 +28,9 @@ placeholder: [date, cover, codeUrl, body]
 
 Detecting fake news from a post's text and its image together, instead of from the text alone.
 
-<!-- TODO(mohit): one or two sentences on the dataset and why this problem interested you. -->
-
 ## What I built
 
 A multimodal classifier that combines **BERT** for the text with **ResNet-50** for the image.
-
-<!-- TODO(mohit): how the two branches are fused, how it was trained. -->
 
 ## Results
 
@@ -41,4 +41,3 @@ A multimodal classifier that combines **BERT** for the text with **ResNet-50** f
 
 BERT, ResNet-50.
 
-<!-- TODO(mohit): add the rest of the stack (framework, libraries, training hardware). -->

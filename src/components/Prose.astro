@@ -1,0 +1,143 @@
+---
+/**
+ * Styles for written content that comes from Markdown: project write-ups,
+ * posts, abstracts. Reads tokens only, so it takes on whichever world it is
+ * placed in.
+ *
+ * `dropcap` sets a large first letter on the opening paragraph. The letter
+ * is wrapped in a real element here, at build time, so the motion script can
+ * animate it without rewriting the text in the browser.
+ */
+interface Props {
+  dropcap?: boolean;
+}
+
+const { dropcap = false } = Astro.props;
+
+let html = await Astro.slots.render('default');
+if (dropcap) {
+  // Only when the very first paragraph opens with a plain letter or digit.
+  const start = html.indexOf('<p>');
+  const first = start === -1 ? null : html.slice(start + 3).match(/^\s*([\p{L}\p{N}])/u);
+  if (first) {
+    const at = start + 3 + first[0].length - first[1]!.length;
+    html = `${html.slice(0, at)}<span class="dropcap">${first[1]}</span>${html.slice(at + first[1]!.length)}`;
+  }
+}
+---
+
+<div class:list={['prose', { 'prose--dropcap': dropcap }]} set:html={html} />
+
+<style>
+  .prose {
+    max-width: var(--measure);
+  }
+
+  .prose :global(* + *) {
+    margin-block-start: 1.1em;
+  }
+
+  .prose :global(h2) {
+    margin-block-start: 2.2em;
+    font-size: var(--step-2);
+  }
+
+  .prose :global(h3) {
+    margin-block-start: 1.8em;
+    font-size: var(--step-1);
+  }
+
+  .prose :global(h2 + *),
+  .prose :global(h3 + *) {
+    margin-block-start: 0.6em;
+  }
+
+  .prose :global(:first-child) {
+    margin-block-start: 0;
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-inline-start: 1.3em;
+  }
+
+  .prose :global(li + li) {
+    margin-block-start: 0.4em;
+  }
+
+  .prose :global(li::marker) {
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .prose :global(strong) {
+    font-weight: 650;
+  }
+
+  .prose :global(blockquote) {
+    padding-inline-start: var(--space-lg);
+    border-inline-start: var(--border-w) solid var(--line-strong);
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .prose :global(hr) {
+    margin-block: 2.2em;
+  }
+
+  .prose :global(img),
+  .prose :global(video) {
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+  }
+
+  .prose :global(figcaption) {
+    margin-block-start: var(--space-xs);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  .prose :global(:not(pre) > code) {
+    padding: 0.1em 0.35em;
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-sunken);
+  }
+
+  .prose :global(pre) {
+    overflow-x: auto;
+    padding: var(--space-md);
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+    line-height: 1.55;
+    tab-size: 2;
+  }
+
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .prose :global(th),
+  .prose :global(td) {
+    padding: var(--space-xs) var(--space-sm);
+    border-block-end: var(--border-w) solid var(--line);
+    text-align: start;
+  }
+
+  /* A large first letter on the opening paragraph. */
+  .prose :global(.dropcap) {
+    float: inline-start;
+    /* Two lines tall: the box must not be taller than two lines of body
+       text, or a third line would be pushed in beside it. */
+    margin: 0.035em 0.09em 0 0;
+    color: var(--accent-text);
+    font-family: var(--font-display);
+    font-size: 4.25em;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 0.7;
+  }
+</style>

@@ -1,0 +1,213 @@
+---
+/**
+ * One post. A measured column of serif text with a drop cap, the project it
+ * is about (if any) underneath, then the posts either side of it.
+ */
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CardGrid from '../../components/CardGrid.astro';
+import Icon from '../../components/Icon.astro';
+import Prose from '../../components/Prose.astro';
+import { TAGS } from '../../data/taxonomy';
+import { getFeed, getItem, getPosts, isoDate, readingMinutes } from '../../lib/feed';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+
+const posts = (await getFeed()).filter((item) => item.collection === 'posts');
+const index = posts.findIndex((item) => item.id === entry.id);
+const item = posts[index]!;
+const newer = posts[index - 1];
+const older = posts[index + 1];
+const project = data.relatedProject ? await getItem(`projects/${data.relatedProject.id}`) : undefined;
+const edited = data.updated
+  ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(data.updated)
+  : null;
+---
+
+<Base title={data.title} world="journal" description={data.summary}>
+  <div class="progress" data-progress aria-hidden="true"></div>
+  <article class="post" data-reading>
+    <header class="wrap post__head">
+      <a class="back ui" href="/journal/">
+        <Icon name="back" />
+        <span>Journal</span>
+      </a>
+      <h1>{data.title}</h1>
+      <p class="post__standfirst">{data.summary}</p>
+      <p class="post__meta label">
+        {item.dateText && <time datetime={isoDate(data.date)}>{item.dateText}</time>}
+        {item.dateText && ' · '}
+        {readingMinutes(entry.body)} min read
+        {edited && ` · edited ${edited}`}
+      </p>
+      <ul class="tags label">
+        {data.tags.map((tag) => (
+          <li>
+            <a href={`/tags/${tag}/`}>{TAGS[tag]}</a>
+          </li>
+        ))}
+      </ul>
+    </header>
+
+    {
+      data.cover && (
+        <div class="wrap post__cover">
+          <Image src={data.cover} alt={data.coverAlt ?? ''} widths={[640, 960, 1280]} sizes="(min-width: 60rem) 56rem, 100vw" loading="eager" />
+        </div>
+      )
+    }
+
+    <div class="wrap post__body">
+      <Prose dropcap>
+        <Content />
+      </Prose>
+    </div>
+
+    {
+      project && (
+        <section class="wrap post__section">
+          <h2>The project this is about</h2>
+          <CardGrid items={[project]} size="wide" />
+        </section>
+      )
+    }
+
+    {
+      (newer || older) && (
+        <nav class="wrap post__nav" aria-label="More posts">
+          {older ? (
+            <a href={older.href} rel="prev">
+              <span class="label">Earlier</span>
+              <span class="post__nav-title">{older.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {newer && (
+            <a href={newer.href} rel="next" class="post__nav-next">
+              <span class="label">Later</span>
+              <span class="post__nav-title">{newer.title}</span>
+            </a>
+          )}
+        </nav>
+      )
+    }
+  </article>
+</Base>
+
+<style>
+  .post__head {
+    padding-block: var(--space-xl) var(--space-xl);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: 2.75rem;
+    color: var(--ink-soft);
+    font-weight: 550;
+    text-decoration: none;
+  }
+
+  .back:hover {
+    color: var(--ink);
+  }
+
+  .post__head h1 {
+    max-width: 20ch;
+    margin-block-start: var(--space-md);
+    font-size: var(--step-5);
+  }
+
+  .post__standfirst {
+    max-width: 44ch;
+    margin-block: var(--space-md);
+    color: var(--ink-soft);
+    font-size: var(--step-2);
+    line-height: 1.4;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin: var(--space-xs) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tags li + li::before {
+    content: '·';
+    margin-inline: 0.5em;
+  }
+
+  .tags a {
+    color: inherit;
+    text-decoration-color: transparent;
+  }
+
+  .tags a:hover {
+    color: var(--accent-text);
+    text-decoration-color: currentColor;
+  }
+
+  .post__cover :global(img) {
+    width: 100%;
+    max-width: 56rem;
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius-md);
+  }
+
+  .post__body {
+    padding-block-start: var(--space-xl);
+    border-block-start: 3px double var(--ink);
+  }
+
+  .post__section {
+    margin-block-start: var(--space-3xl);
+  }
+
+  .post__section h2 {
+    margin-block-end: var(--space-lg);
+    font-size: var(--step-2);
+  }
+
+  .post__nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-lg);
+    margin-block-start: var(--space-3xl);
+    padding-block-start: var(--space-lg);
+    border-block-start: var(--border-w) solid var(--line-strong);
+  }
+
+  .post__nav a {
+    display: grid;
+    gap: var(--space-2xs);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .post__nav-next {
+    grid-column: 2;
+    text-align: end;
+  }
+
+  .post__nav-title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-style: var(--display-style);
+  }
+
+  .post__nav a:hover .post__nav-title {
+    color: var(--accent-text);
+  }
+</style>

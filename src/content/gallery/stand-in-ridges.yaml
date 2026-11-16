@@ -1,0 +1,12 @@
+# TODO(mohit): this is a stand-in so the gallery has a shape on day one.
+# Replace it with a real piece: put your image next to this file, point
+# `image` at it, fill in the caption fields, then delete the `placeholder`
+# line. (Or delete this file and its .svg and add your own.)
+image: ./stand-in-ridges.svg
+alt: A cyan moon over layered violet ridges under a starry sky.
+caption: Stand-in piece. Artwork from the visual novel will replace it.
+model: None. Drawn by this site's code
+workflow: An SVG written by a script
+purpose: Holds the gallery's shape until real pieces arrive
+date: 2026-11-13
+placeholder: [image, caption, model, workflow, purpose, date]
