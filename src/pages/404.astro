@@ -1,0 +1,63 @@
+---
+/**
+ * Shown by GitHub Pages for any address that does not exist.
+ */
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { WORLDS } from '../data/taxonomy';
+---
+
+<Base title="Page not found" description="That address is not on this site." noindex preloadAllFonts>
+  <div class="wrap lost">
+    <p class="lost__code" aria-hidden="true">404</p>
+    <h1>That page isn’t here.</h1>
+    <p class="lost__why">The link may be out of date, or the address may have a typo.</p>
+
+    <p class="lost__ways">
+      Try{' '}
+      <a class="phrase world-surface" data-world="lab" href={WORLDS.lab.path}>the Lab</a>,{' '}
+      <a class="phrase world-surface" data-world="studio" href={WORLDS.studio.path}>the Studio</a>{' '}
+      or{' '}
+      <a class="phrase world-surface" data-world="journal" href={WORLDS.journal.path}>the Journal</a>.
+    </p>
+
+    <a class="btn" href="/">
+      <Icon name="back" />
+      <span>Back to the home page</span>
+    </a>
+  </div>
+</Base>
+
+<style>
+  .lost {
+    padding-block: var(--space-3xl) var(--space-2xl);
+  }
+
+  .lost__code {
+    color: var(--ink-faint);
+    font-size: clamp(5rem, 2rem + 14vw, 11rem);
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+  }
+
+  .lost h1 {
+    margin-block-start: var(--space-lg);
+    font-size: var(--step-4);
+  }
+
+  .lost__why {
+    max-width: var(--measure);
+    margin-block-start: var(--space-sm);
+    color: var(--ink-soft);
+    font-size: var(--step-1);
+  }
+
+  .lost__ways {
+    margin-block: var(--space-xl) var(--space-2xl);
+    color: var(--ink-soft);
+    font-size: var(--step-2);
+    line-height: 1.7;
+  }
+</style>

@@ -25,7 +25,8 @@ const ICONS: Record<LifePhoto['standIn']['icon'], string> = {
 const photos = lifePhotos.map((photo) => ({ ...photo, image: byName.get(photo.file) }));
 ---
 
-<ul class="strip">
+{/* Focusable so the row can be scrolled with the arrow keys when it overflows. */}
+<ul class="strip" tabindex="0" aria-label="Photos from away from the desk">
   {
     photos.map((photo) => (
       <li>

@@ -31,7 +31,7 @@ const { Content } = await render(entry);
 const buttonText: Record<string, string> = { Live: 'Live demo', Code: 'Source code', Paper: 'Read the paper' };
 ---
 
-<Base title={data.title} world={data.world} description={data.summary}>
+<Base title={data.title} world={data.world} description={data.summary} image={data.cover} imageAlt={data.coverAlt}>
   <article class="project">
     <header class="wrap project__head">
       <div class="project__intro">

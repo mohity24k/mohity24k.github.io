@@ -1,0 +1,5 @@
+# Everything on this site is public.
+User-agent: *
+Allow: /
+
+Sitemap: https://mohity24k.github.io/sitemap-index.xml

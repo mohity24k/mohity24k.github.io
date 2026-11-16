@@ -12,6 +12,8 @@ Mohit Gedam's personal site: one home base with three visual worlds.
 
 Built with [Astro](https://astro.build) and deployed to GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`. The design brief is in [`docs/DESIGN.md`](docs/DESIGN.md).
 
+**Adding or changing content?** Read [`CONTENT_GUIDE.md`](CONTENT_GUIDE.md): copy-paste templates for a project, post, gallery piece or publication, how to replace the CV and photos, and the checklist of placeholders still to replace.
+
 ## Run it locally
 
 Needs Node 22.23 or newer.
@@ -66,8 +68,11 @@ src/
   assets/             drop portrait.jpg here to replace the stand-in portrait
     life/               photos for the About page strip (lab.jpg, chess.jpg, …)
   components/         shared pieces
-  pages/              routes
-public/cv/            the downloadable CV (stable file name)
+  pages/              routes, including 404.astro and rss.xml.ts
+public/
+  cv/                 the downloadable CV (stable file name)
+  og/                 share cards shown when a link is posted elsewhere, one per world
+  robots.txt          points search engines at the sitemap
 ```
 
 ## One-time GitHub setup

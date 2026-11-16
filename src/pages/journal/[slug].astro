@@ -9,6 +9,7 @@ import Base from '../../layouts/Base.astro';
 import CardGrid from '../../components/CardGrid.astro';
 import Icon from '../../components/Icon.astro';
 import Prose from '../../components/Prose.astro';
+import { site } from '../../data/site';
 import { TAGS } from '../../data/taxonomy';
 import { getFeed, getItem, getPosts, isoDate, readingMinutes } from '../../lib/feed';
 
@@ -32,7 +33,24 @@ const edited = data.updated
   : null;
 ---
 
-<Base title={data.title} world="journal" description={data.summary}>
+<Base
+  title={data.title}
+  world="journal"
+  description={data.summary}
+  image={data.cover}
+  imageAlt={data.coverAlt}
+  article={{ published: data.date, modified: data.updated, tags: data.tags.map((tag) => TAGS[tag]) }}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: data.title,
+    description: data.summary,
+    datePublished: isoDate(data.date),
+    ...(data.updated ? { dateModified: isoDate(data.updated) } : {}),
+    author: { '@type': 'Person', name: site.name, url: site.url },
+    mainEntityOfPage: new URL(item.href, site.url).href,
+  }}
+>
   <div class="progress" data-progress aria-hidden="true"></div>
   <article class="post" data-reading>
     <header class="wrap post__head">

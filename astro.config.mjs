@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 
 /**
  * Fonts are self-hosted from the @fontsource-variable/* packages in
@@ -35,7 +36,12 @@ export default defineConfig({
   // The repo is <username>.github.io, so the site lives at the root: no `base`.
   site: 'https://mohity24k.github.io',
   trailingSlash: 'always',
-  integrations: [mdx()],
+  integrations: [
+    mdx(),
+    // sitemap-index.xml, listed in public/robots.txt. The style guide is a
+    // working reference, not a page for search engines.
+    sitemap({ filter: (page) => !page.includes('/styleguide/') }),
+  ],
   fonts: [
     // Shared chrome everywhere; body text in Neutral, Lab and Studio.
     selfHosted('Schibsted Grotesk', '--font-schibsted', ['system-ui', 'sans-serif'], [

@@ -13,9 +13,12 @@ import Icon from './Icon.astro';
 
 interface Props {
   pieces: CollectionEntry<'gallery'>[];
+  /** How many leading pieces to load straight away. Use it where the gallery
+      is the first thing on the page; everything else loads as it is reached. */
+  eager?: number;
 }
 
-const { pieces } = Astro.props;
+const { pieces, eager = 0 } = Astro.props;
 
 const slides = await Promise.all(
   pieces.map(async ({ id, data }) => {
@@ -43,7 +46,7 @@ const slides = await Promise.all(
 
 <ul class="gallery">
   {
-    slides.map((piece) => (
+    slides.map((piece, i) => (
       <li>
         <figure class="piece">
           <a class="piece__open" href={piece.video ?? piece.full.src} data-lightbox aria-label={`View larger: ${piece.alt}`}>
@@ -52,6 +55,8 @@ const slides = await Promise.all(
               alt={piece.alt}
               widths={[400, 640, 960]}
               sizes="(min-width: 64rem) 24rem, (min-width: 40rem) 50vw, 100vw"
+              loading={i < eager ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 && eager > 0 ? 'high' : undefined}
             />
             {piece.video && (
               <span class="piece__play">

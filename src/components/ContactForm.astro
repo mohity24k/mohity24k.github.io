@@ -7,7 +7,10 @@
  * Without JavaScript the form still posts to Web3Forms directly.
  *
  * With no key yet, the same form opens the visitor's email app with the
- * message filled in (a mailto: link), so there is never a dead form.
+ * message filled in, so there is never a dead form. (That needs JavaScript;
+ * without it the fields are replaced by a plain email link. The form is
+ * deliberately not given a mailto: action, which browsers treat as an
+ * insecure form on an HTTPS page.)
  *
  * Spam: a hidden "botcheck" box that people never see and bots tick.
  */
@@ -20,8 +23,8 @@ const topics = ['Opportunity', 'Collaboration', 'Just saying hi'];
 
 <form
   class="form"
-  action={live ? 'https://api.web3forms.com/submit' : `mailto:${site.email}`}
-  method={live ? 'post' : 'get'}
+  action={live ? 'https://api.web3forms.com/submit' : undefined}
+  method={live ? 'post' : undefined}
   data-contact={live ? 'web3forms' : 'mailto'}
   data-email={site.email}
 >
@@ -53,8 +56,7 @@ const topics = ['Opportunity', 'Collaboration', 'Just saying hi'];
       {
         topics.map((topic, i) => (
           <label class="topic">
-            {/* In mailto mode the topic becomes the email's subject. */}
-            <input type="radio" name={live ? 'topic' : 'subject'} value={topic} checked={i === 0} />
+            <input type="radio" name="topic" value={topic} checked={i === 0} />
             <span>{topic}</span>
           </label>
         ))
@@ -64,7 +66,7 @@ const topics = ['Opportunity', 'Collaboration', 'Just saying hi'];
 
   <div class="field">
     <label for="contact-message">Message</label>
-    <textarea id="contact-message" name={live ? 'message' : 'body'} rows="6" required maxlength="5000"></textarea>
+    <textarea id="contact-message" name="message" rows="6" required maxlength="5000"></textarea>
   </div>
 
   <div class="form__foot">
@@ -78,6 +80,17 @@ const topics = ['Opportunity', 'Collaboration', 'Just saying hi'];
   <p class="form__fallback">
     Or email me directly: <a href={`mailto:${site.email}`}>{site.email}</a>
   </p>
+
+  {
+    !live && (
+      <noscript>
+        {/* No key and no JavaScript: nothing could send, so show only the email link. */}
+        <style is:inline>
+          .form[data-contact='mailto'] > :not(.form__fallback) { display: none; }
+        </style>
+      </noscript>
+    )
+  }
 </form>
 
 <script>
@@ -104,8 +117,8 @@ const topics = ['Opportunity', 'Collaboration', 'Just saying hi'];
 
       // No key yet: hand the message to the visitor's email app.
       if (mode === 'mailto') {
-        const subject = `${data.get('subject')}, from ${name}`;
-        const body = `${data.get('body')}\n\n${name}\n${data.get('email')}`;
+        const subject = `${data.get('topic')}, from ${name}`;
+        const body = `${data.get('message')}\n\n${name}\n${data.get('email')}`;
         const link = document.createElement('a');
         link.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         link.click();

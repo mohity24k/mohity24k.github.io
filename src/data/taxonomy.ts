@@ -8,11 +8,14 @@
 
 /** The three styled worlds plus the neutral shared pages. */
 export const WORLDS = {
-  neutral: { label: 'Home', path: '/' },
-  lab: { label: 'Lab', path: '/lab/' },
-  studio: { label: 'Studio', path: '/studio/' },
-  journal: { label: 'Journal', path: '/journal/' },
+  neutral: { label: 'Home', path: '/', themeColor: '#f9fbfd' },
+  lab: { label: 'Lab', path: '/lab/', themeColor: '#f0f9f2' },
+  studio: { label: 'Studio', path: '/studio/', themeColor: '#0c0a17' },
+  journal: { label: 'Journal', path: '/journal/', themeColor: '#f8eddf' },
 } as const;
+// `themeColor` tints the browser's own chrome on phones. It is each world's
+// --bg from src/styles/tokens.css, written as hex because <meta> cannot read
+// CSS variables. Update it if you change that token.
 
 export type World = keyof typeof WORLDS;
 

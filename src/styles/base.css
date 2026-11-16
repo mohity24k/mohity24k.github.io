@@ -292,6 +292,11 @@ main {
   flex: 1;
 }
 
+/* The skip link moves focus here; the page itself needs no ring. */
+main:focus {
+  outline: none;
+}
+
 /* ── Reduced motion: the calm version, everywhere ───────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
